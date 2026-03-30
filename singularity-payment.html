@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Singularity Rentals — Payment</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06080d; --surface: #0f1318; --surface2: #161c24; --border: #1e2730;
+  --accent: #00e5ff; --accent2: #7c3aed; --accent3: #f59e0b;
+  --text: #e8edf2; --muted: #4a5568; --success: #10b981; --danger: #ef4444;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;overflow-x:hidden;min-height:100vh;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.4;}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 60px;height:68px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,8,13,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;flex-direction:column;text-decoration:none;cursor:pointer;}
+.nav-logo-mark{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.2em;color:var(--accent);line-height:1;}
+.nav-logo-sub{font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);margin-top:1px;}
+.nav-right{display:flex;align-items:center;gap:20px;}
+.nav-user{display:flex;align-items:center;gap:10px;padding:6px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);}
+.nav-avatar{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;font-family:'Syne',sans-serif;}
+.nav-username{font-size:12px;color:var(--text);}
+.nav-role-badge{font-size:9px;letter-spacing:0.15em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:rgba(124,58,237,0.15);color:var(--accent2);border:1px solid rgba(124,58,237,0.2);}
+.btn-back{padding:8px 18px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;text-decoration:none;display:flex;align-items:center;gap:6px;}
+.btn-back:hover{border-color:var(--text);color:var(--text);}
+.page{padding-top:100px;padding-bottom:80px;min-height:100vh;position:relative;}
+.page::before{content:'';position:fixed;top:0;right:0;width:700px;height:700px;background:radial-gradient(ellipse,rgba(124,58,237,0.07) 0%,transparent 70%);pointer-events:none;}
+.progress-wrap{max-width:860px;margin:0 auto 48px;padding:0 40px;position:relative;z-index:2;}
+.progress-steps{display:flex;align-items:center;}
+.step-item{display:flex;align-items:center;flex:1;}
+.step-circle{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;border:2px solid var(--border);background:var(--surface);color:var(--muted);transition:all 0.4s;flex-shrink:0;position:relative;z-index:1;}
+.step-circle.active{border-color:var(--accent2);background:rgba(124,58,237,0.15);color:var(--accent2);box-shadow:0 0 20px rgba(124,58,237,0.2);}
+.step-circle.done{border-color:var(--success);background:rgba(16,185,129,0.15);color:var(--success);}
+.step-label{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-left:10px;white-space:nowrap;transition:color 0.3s;}
+.step-label.active{color:var(--text);}
+.step-connector{flex:1;height:2px;margin:0 12px;background:var(--border);border-radius:1px;position:relative;overflow:hidden;}
+.step-connector.done::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,var(--success),var(--accent));animation:fillLine 0.5s ease both;}
+@keyframes fillLine{from{width:0}to{width:100%}}
+.main-grid{max-width:860px;margin:0 auto;padding:0 40px;display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;position:relative;z-index:2;}
+.summary-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;position:sticky;top:88px;}
+.summary-img{width:100%;height:180px;background:linear-gradient(135deg,#0a1020,#141a2e);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:56px;}
+.summary-img::before{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,var(--surface));}
+.summary-img-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.04) 1px,transparent 1px);background-size:30px 30px;}
+.summary-badge{position:absolute;top:14px;left:14px;padding:4px 12px;border-radius:20px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--success);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;}
+.summary-body{padding:20px;}
+.summary-prop-name{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px;}
+.summary-address{font-size:11px;color:var(--muted);margin-bottom:16px;}
+.summary-divider{height:1px;background:var(--border);margin:16px 0;}
+.summary-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.s-label{font-size:11px;color:var(--muted);}
+.s-val{font-size:12px;color:var(--text);}
+.s-val.accent{color:var(--accent);}
+.summary-total{margin-top:16px;padding:14px 16px;border-radius:12px;background:rgba(0,229,255,0.06);border:1px solid rgba(0,229,255,0.15);display:flex;justify-content:space-between;align-items:center;}
+.total-label{font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
+.total-amount{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);letter-spacing:0.05em;}
+.landlord-row{display:flex;align-items:center;gap:10px;margin-top:16px;padding:12px;border-radius:10px;background:var(--surface2);}
+.landlord-avatar{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent3),#ef4444);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;}
+.landlord-name{font-size:12px;font-weight:600;}
+.landlord-tag{font-size:10px;color:var(--muted);}
+.verified-dot{width:18px;height:18px;border-radius:50%;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;}
+.pay-panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;position:relative;}
+.pay-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent2),var(--accent));}
+.pay-step{display:none;padding:36px;}
+.pay-step.active{display:block;animation:stepIn 0.35s ease both;}
+@keyframes stepIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.step-heading{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:0.04em;margin-bottom:4px;}
+.step-sub{font-size:12px;color:var(--muted);margin-bottom:28px;}
+.form-label{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px;}
+.form-input,.form-select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:11px;padding:12px 16px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;appearance:none;}
+.form-input:focus,.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,229,255,0.07);}
+.form-group{margin-bottom:16px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.input-wrap{position:relative;}
+.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);width:15px;height:15px;pointer-events:none;}
+.input-wrap .form-input{padding-left:40px;}
+.method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
+.method-card{padding:16px 12px;border-radius:14px;border:2px solid var(--border);background:var(--surface2);cursor:pointer;transition:all 0.2s;text-align:center;}
+.method-card:hover{border-color:rgba(124,58,237,0.4);}
+.method-card.selected{border-color:var(--accent2);background:rgba(124,58,237,0.08);}
+.method-icon{font-size:26px;margin-bottom:8px;}
+.method-name{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;}
+.method-desc{font-size:10px;color:var(--muted);margin-top:3px;}
+.card-art{width:100%;height:160px;border-radius:16px;background:linear-gradient(135deg,#1a0533,#0d1a33);border:1px solid var(--border);padding:20px 24px;position:relative;overflow:hidden;margin-bottom:24px;}
+.card-art::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.4),transparent);}
+.card-art::after{content:'';position:absolute;bottom:-30px;left:-30px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,0.2),transparent);}
+.card-chip{width:36px;height:28px;border-radius:6px;background:linear-gradient(135deg,#d4af37,#f4d03f);margin-bottom:24px;position:relative;z-index:1;}
+.card-number-display{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.18em;color:rgba(255,255,255,0.9);position:relative;z-index:1;margin-bottom:16px;}
+.card-bottom{display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1;}
+.card-holder-label{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.4);}
+.card-holder-name{font-size:13px;letter-spacing:0.08em;color:rgba(255,255,255,0.9);margin-top:2px;}
+.card-network{font-size:22px;opacity:0.9;}
+.momo-network{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.momo-net{padding:10px 8px;border-radius:10px;border:2px solid var(--border);background:var(--surface2);cursor:pointer;text-align:center;transition:all 0.2s;}
+.momo-net:hover{border-color:rgba(245,158,11,0.4);}
+.momo-net.selected{border-color:var(--accent3);background:rgba(245,158,11,0.08);}
+.momo-net-icon{font-size:20px;margin-bottom:4px;}
+.momo-net-name{font-size:10px;color:var(--muted);letter-spacing:0.1em;}
+.bank-info-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;}
+.bank-info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.bank-info-row:last-child{border-bottom:none;}
+.bi-label{font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;}
+.bi-val{font-size:13px;color:var(--text);}
+.bi-copy{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.2s;}
+.bi-copy:hover{border-color:var(--accent);color:var(--accent);}
+.review-section{margin-bottom:24px;}
+.review-section-title{font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.review-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.review-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(30,39,48,0.5);}
+.review-row:last-child{border-bottom:none;}
+.rv-lbl{font-size:12px;color:var(--muted);}
+.rv-val{font-size:12px;color:var(--text);text-align:right;}
+.rv-val.strong{color:var(--accent);font-size:14px;}
+.security-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
+.sec-badge{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);font-size:10px;color:var(--muted);}
+.sec-badge span{color:var(--success);}
+.pin-display{display:flex;gap:12px;justify-content:center;margin:24px 0 8px;}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);background:transparent;transition:all 0.2s;}
+.pin-dot.filled{background:var(--accent2);border-color:var(--accent2);box-shadow:0 0 12px rgba(124,58,237,0.4);}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto 8px;}
+.pin-key{padding:14px;border-radius:12px;text-align:center;border:1px solid var(--border);background:var(--surface2);font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);cursor:pointer;transition:all 0.2s;user-select:none;}
+.pin-key:hover{border-color:var(--accent2);color:var(--accent2);background:rgba(124,58,237,0.08);}
+.pin-key:active{transform:scale(0.94);}
+.pin-key.del{font-size:16px;font-family:'DM Mono',monospace;}
+.pin-hint{text-align:center;font-size:11px;color:var(--muted);margin-bottom:20px;}
+.next-btn{width:100%;padding:15px;border-radius:12px;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;background:linear-gradient(135deg,var(--accent2),#9333ea);color:white;box-shadow:0 0 24px rgba(124,58,237,0.3);margin-top:8px;}
+.next-btn:hover{box-shadow:0 0 44px rgba(124,58,237,0.5);transform:translateY(-2px);}
+.next-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.next-btn.confirm{background:linear-gradient(135deg,#059669,var(--success));box-shadow:0 0 24px rgba(16,185,129,0.3);}
+.next-btn.confirm:hover{box-shadow:0 0 44px rgba(16,185,129,0.5);}
+.success-screen{display:none;flex-direction:column;align-items:center;text-align:center;padding:60px 40px;}
+.success-screen.visible{display:flex;animation:stepIn 0.5s ease both;}
+.success-orbit{position:relative;width:120px;height:120px;margin-bottom:32px;}
+.success-core{position:absolute;inset:16px;border-radius:20px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;font-size:40px;animation:popIn 0.6s cubic-bezier(0.175,0.885,0.32,1.275) 0.2s both;}
+@keyframes popIn{from{transform:scale(0.4);opacity:0}to{transform:scale(1);opacity:1}}
+.orbit-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(16,185,129,0.2);animation:spin 8s linear infinite;}
+.orbit-ring::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:var(--success);margin-top:-4px;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.orbit-ring-2{position:absolute;inset:6px;border-radius:50%;border:1px dashed rgba(0,229,255,0.15);animation:spin 12s linear infinite reverse;}
+.success-title{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:0.04em;margin-bottom:8px;}
+.success-title span{color:var(--success);}
+.success-sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:32px;max-width:340px;}
+.txn-card{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:24px;text-align:left;}
+.txn-id-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.txn-id-lbl{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);}
+.txn-id-val{font-size:12px;color:var(--accent);font-family:'Bebas Neue',sans-serif;letter-spacing:0.1em;}
+.txn-rows{display:grid;gap:8px;}
+.txn-row{display:flex;justify-content:space-between;}
+.txn-lbl{font-size:11px;color:var(--muted);}
+.txn-val{font-size:11px;color:var(--text);}
+.txn-amount-big{text-align:center;margin:16px 0 8px;font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--success);letter-spacing:0.04em;}
+.txn-status{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--success);margin-bottom:20px;}
+.txn-status-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.success-btns{display:flex;gap:12px;width:100%;}
+.s-btn{flex:1;padding:13px;border-radius:12px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;border:none;}
+.s-btn-receipt{background:var(--accent);color:#000;box-shadow:0 0 20px rgba(0,229,255,0.2);}
+.s-btn-receipt:hover{box-shadow:0 0 36px rgba(0,229,255,0.4);}
+.s-btn-home{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+.s-btn-home:hover{color:var(--text);border-color:var(--text);}
+.landlord-panel{max-width:860px;margin:40px auto 0;padding:0 40px;position:relative;z-index:2;display:none;}
+.landlord-panel.visible{display:block;animation:stepIn 0.5s ease both;}
+.lp-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.lp-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.04em;}
+.lp-badge{padding:4px 12px;border-radius:20px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--success);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;}
+.lp-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
+.lp-card::before{content:'';display:block;height:3px;background:linear-gradient(90deg,var(--success),var(--accent));}
+.lp-body{padding:28px;}
+.lp-txn-row{display:flex;align-items:center;gap:16px;padding:16px;border-radius:14px;background:var(--surface2);border:1px solid var(--border);}
+.lp-txn-icon{width:44px;height:44px;border-radius:12px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.lp-txn-info{flex:1;}
+.lp-txn-name{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:3px;}
+.lp-txn-meta{font-size:11px;color:var(--muted);}
+.lp-txn-amount{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--success);letter-spacing:0.05em;}
+.lp-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;}
+.lp-stat{padding:16px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);text-align:center;}
+.lp-stat-num{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.05em;margin-bottom:4px;}
+.lp-stat-lbl{font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+@media(max-width:720px){.main-grid{grid-template-columns:1fr;}.summary-card{position:static;}.navbar{padding:0 20px;}.progress-wrap,.main-grid,.landlord-panel{padding:0 16px;}.method-grid{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <a class="nav-logo" href="singularity-home.html">
+    <div class="nav-logo-mark">Singularity</div>
+    <div class="nav-logo-sub">Rentals</div>
+  </a>
+  <div class="nav-right">
+    <div class="nav-user">
+      <div class="nav-avatar">A</div>
+      <span class="nav-username">Ama Owusu</span>
+      <span class="nav-role-badge">Tenant</span>
+    </div>
+    <a class="btn-back" href="singularity-tenant.html">← Back to Listings</a>
+  </div>
+</nav>
+<div class="page" id="page">
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-steps">
+      <div class="step-item"><div class="step-circle active" id="sc-1">1</div><div class="step-label active" id="sl-1">Choose Method</div></div>
+      <div class="step-connector" id="con-1"></div>
+      <div class="step-item"><div class="step-circle" id="sc-2">2</div><div class="step-label" id="sl-2">Enter Details</div></div>
+      <div class="step-connector" id="con-2"></div>
+      <div class="step-item"><div class="step-circle" id="sc-3">3</div><div class="step-label" id="sl-3">Confirm & Pay</div></div>
+      <div class="step-connector" id="con-3"></div>
+      <div class="step-item"><div class="step-circle" id="sc-4">4</div><div class="step-label" id="sl-4">Receipt</div></div>
+    </div>
+  </div>
+  <div class="main-grid" id="main-grid">
+    <div class="pay-panel" id="pay-panel">
+      <div class="pay-step active" id="step-1">
+        <div class="step-heading">Payment Method</div>
+        <div class="step-sub">Choose how you'd like to pay your rent.</div>
+        <div class="method-grid">
+          <div class="method-card" onclick="selectMethod('momo')" id="m-momo"><div class="method-icon">📱</div><div class="method-name">Mobile Money</div><div class="method-desc">MTN, Vodafone, AirtelTigo</div></div>
+          <div class="method-card" onclick="selectMethod('card')" id="m-card"><div class="method-icon">💳</div><div class="method-name">Card</div><div class="method-desc">Debit or Credit</div></div>
+          <div class="method-card" onclick="selectMethod('bank')" id="m-bank"><div class="method-icon">🏦</div><div class="method-name">Bank Transfer</div><div class="method-desc">Direct to landlord</div></div>
+        </div>
+        <div class="security-row">
+          <div class="sec-badge"><span>🔒</span> SSL Encrypted</div>
+          <div class="sec-badge"><span>✓</span> Verified Landlord</div>
+          <div class="sec-badge"><span>🧾</span> Auto Receipt</div>
+        </div>
+        <button class="next-btn" id="btn-1" onclick="goStep(2)" disabled>Continue →</button>
+      </div>
+      <div class="pay-step" id="step-2">
+        <div id="form-momo" style="display:none">
+          <div class="step-heading">Mobile Money</div>
+          <div class="step-sub">Enter your MoMo number to proceed.</div>
+          <div class="form-group"><label class="form-label">Network</label>
+            <div class="momo-network">
+              <div class="momo-net selected" id="net-mtn" onclick="selectNet('mtn')"><div class="momo-net-icon">🟡</div><div class="momo-net-name">MTN</div></div>
+              <div class="momo-net" id="net-voda" onclick="selectNet('voda')"><div class="momo-net-icon">🔴</div><div class="momo-net-name">Vodafone</div></div>
+              <div class="momo-net" id="net-airtel" onclick="selectNet('airtel')"><div class="momo-net-icon">🔵</div><div class="momo-net-name">AirtelTigo</div></div>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">MoMo Phone Number</label><div class="input-wrap"><svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg><input type="tel" class="form-input" placeholder="024 XXX XXXX" id="momo-number" oninput="checkStep2()"></div></div>
+          <div class="form-group"><label class="form-label">Account Name</label><input type="text" class="form-input" placeholder="Name on MoMo account" id="momo-name" oninput="checkStep2()"></div>
+        </div>
+        <div id="form-card" style="display:none">
+          <div class="step-heading">Card Details</div>
+          <div class="step-sub">Enter your debit or credit card information.</div>
+          <div class="card-art" id="card-art">
+            <div class="card-chip"></div>
+            <div class="card-number-display" id="card-num-display">•••• •••• •••• ••••</div>
+            <div class="card-bottom"><div><div class="card-holder-label">Card Holder</div><div class="card-holder-name" id="card-name-display">YOUR NAME</div></div><div class="card-network" id="card-network-icon">💳</div></div>
+          </div>
+          <div class="form-group"><label class="form-label">Card Number</label><div class="input-wrap"><svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><input type="text" class="form-input" placeholder="0000 0000 0000 0000" id="card-number" maxlength="19" oninput="formatCard(this);checkStep2()"></div></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Cardholder Name</label><input type="text" class="form-input" placeholder="AMA OWUSU" id="card-name" oninput="updateCardName();checkStep2()"></div>
+            <div class="form-group"><label class="form-label">Expiry</label><input type="text" class="form-input" placeholder="MM / YY" id="card-expiry" maxlength="7" oninput="formatExpiry(this);checkStep2()"></div>
+          </div>
+          <div class="form-group"><label class="form-label">CVV</label><input type="password" class="form-input" placeholder="•••" maxlength="4" id="card-cvv" oninput="checkStep2()"></div>
+        </div>
+        <div id="form-bank" style="display:none">
+          <div class="step-heading">Bank Transfer</div>
+          <div class="step-sub">Transfer rent directly to the landlord's account.</div>
+          <div class="bank-info-card">
+            <div class="bank-info-row"><div><div class="bi-label">Bank Name</div><div class="bi-val">GCB Bank Ghana</div></div><button class="bi-copy" onclick="copyText('GCB Bank Ghana')">📋</button></div>
+            <div class="bank-info-row"><div><div class="bi-label">Account Name</div><div class="bi-val">Kofi Mensah</div></div><button class="bi-copy" onclick="copyText('Kofi Mensah')">📋</button></div>
+            <div class="bank-info-row"><div><div class="bi-label">Account Number</div><div class="bi-val">1020 4455 6678</div></div><button class="bi-copy" onclick="copyText('1020 4455 6678')">📋</button></div>
+            <div class="bank-info-row"><div><div class="bi-label">Reference</div><div class="bi-val">SING-APR2025-AMO</div></div><button class="bi-copy" onclick="copyText('SING-APR2025-AMO')">📋</button></div>
+          </div>
+          <div class="form-group"><label class="form-label">Upload Payment Proof</label>
+            <div style="border:2px dashed var(--border);border-radius:12px;padding:22px;text-align:center;cursor:pointer;position:relative;">
+              <input type="file" accept="image/*,.pdf" style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="bankFileUploaded(this)">
+              <div style="font-size:28px;margin-bottom:8px">📎</div>
+              <div style="font-size:11px;color:var(--muted)"><strong style="color:var(--accent)">Click to upload</strong> receipt or screenshot</div>
+            </div>
+            <div id="bank-proof-ok" style="display:none;margin-top:8px;font-size:11px;color:var(--success)">✓ Proof uploaded</div>
+          </div>
+        </div>
+        <button class="next-btn" id="btn-2" onclick="goStep(3)" disabled>Review Payment →</button>
+      </div>
+      <div class="pay-step" id="step-3">
+        <div class="step-heading">Confirm & Pay</div>
+        <div class="step-sub">Review your payment details before confirming.</div>
+        <div class="review-section">
+          <div class="review-section-title">Property</div>
+          <div class="review-row"><span class="rv-lbl">Property</span><span class="rv-val">2-Bedroom Flat, East Legon</span></div>
+          <div class="review-row"><span class="rv-lbl">Room / Unit</span><span class="rv-val">Unit B — Floor 2</span></div>
+          <div class="review-row"><span class="rv-lbl">Landlord</span><span class="rv-val">Kofi Mensah</span></div>
+        </div>
+        <div class="review-section">
+          <div class="review-section-title">Payment</div>
+          <div class="review-row"><span class="rv-lbl">Payment Method</span><span class="rv-val" id="review-method">—</span></div>
+          <div class="review-row"><span class="rv-lbl">Payment For</span><span class="rv-val">April 2025 Rent</span></div>
+          <div class="review-row"><span class="rv-lbl">Rent Amount</span><span class="rv-val">GHS 1,800</span></div>
+          <div class="review-row"><span class="rv-lbl">Platform Fee</span><span class="rv-val">GHS 18</span></div>
+          <div class="review-row" style="padding-top:12px"><span class="rv-lbl" style="font-weight:700;color:var(--text)">Total</span><span class="rv-val strong">GHS 1,818</span></div>
+        </div>
+        <div id="pin-section">
+          <div class="review-section-title" style="margin-top:8px">Authorise Payment</div>
+          <div class="pin-display"><div class="pin-dot" id="pd-1"></div><div class="pin-dot" id="pd-2"></div><div class="pin-dot" id="pd-3"></div><div class="pin-dot" id="pd-4"></div></div>
+          <div class="pin-hint">Enter your 4-digit PIN to authorise</div>
+          <div class="pin-grid">
+            <div class="pin-key" onclick="pinInput('1')">1</div><div class="pin-key" onclick="pinInput('2')">2</div><div class="pin-key" onclick="pinInput('3')">3</div>
+            <div class="pin-key" onclick="pinInput('4')">4</div><div class="pin-key" onclick="pinInput('5')">5</div><div class="pin-key" onclick="pinInput('6')">6</div>
+            <div class="pin-key" onclick="pinInput('7')">7</div><div class="pin-key" onclick="pinInput('8')">8</div><div class="pin-key" onclick="pinInput('9')">9</div>
+            <div class="pin-key" onclick="pinInput('0')" style="grid-column:2">0</div><div class="pin-key del" onclick="pinDel()">⌫</div>
+          </div>
+        </div>
+        <button class="next-btn confirm" id="btn-3" onclick="processPayment()" disabled>🔒 Confirm & Pay GHS 1,818</button>
+      </div>
+      <div class="pay-step" id="step-4">
+        <div class="success-screen visible" id="success-screen">
+          <div class="success-orbit"><div class="orbit-ring"></div><div class="orbit-ring-2"></div><div class="success-core">✓</div></div>
+          <div class="success-title">Payment <span>Confirmed</span></div>
+          <div class="success-sub">Your April 2025 rent has been received and logged. The landlord has been notified.</div>
+          <div class="txn-card">
+            <div class="txn-id-row"><span class="txn-id-lbl">Transaction ID</span><span class="txn-id-val" id="txn-id">SING-TXN-00000</span></div>
+            <div class="txn-amount-big">GHS 1,818</div>
+            <div class="txn-status"><div class="txn-status-dot"></div>Payment Successful</div>
+            <div class="txn-rows">
+              <div class="txn-row"><span class="txn-lbl">Property</span><span class="txn-val">2-Bedroom Flat, East Legon</span></div>
+              <div class="txn-row"><span class="txn-lbl">Tenant</span><span class="txn-val">Ama Owusu</span></div>
+              <div class="txn-row"><span class="txn-lbl">Landlord</span><span class="txn-val">Kofi Mensah</span></div>
+              <div class="txn-row"><span class="txn-lbl">Method</span><span class="txn-val" id="txn-method">—</span></div>
+              <div class="txn-row"><span class="txn-lbl">Date & Time</span><span class="txn-val" id="txn-datetime">—</span></div>
+              <div class="txn-row"><span class="txn-lbl">Period</span><span class="txn-val">April 2025</span></div>
+            </div>
+          </div>
+          <div class="success-btns">
+            <button class="s-btn s-btn-receipt" onclick="viewReceipt()">🧾 View Receipt</button>
+            <button class="s-btn s-btn-home" onclick="window.location.href='singularity-tenant.html'">← My Dashboard</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="summary-card" id="summary-card">
+      <div class="summary-img"><div class="summary-img-grid"></div><div class="summary-badge">✓ Approved</div>🏙️</div>
+      <div class="summary-body">
+        <div class="summary-prop-name">2-Bedroom Flat</div>
+        <div class="summary-address">📍 East Legon, Accra</div>
+        <div class="summary-divider"></div>
+        <div class="summary-row"><span class="s-label">Unit</span><span class="s-val">B — Floor 2</span></div>
+        <div class="summary-row"><span class="s-label">Payment For</span><span class="s-val">April 2025</span></div>
+        <div class="summary-row"><span class="s-label">Due Date</span><span class="s-val accent">Apr 1, 2025</span></div>
+        <div class="summary-divider"></div>
+        <div class="summary-row"><span class="s-label">Rent</span><span class="s-val">GHS 1,800</span></div>
+        <div class="summary-row"><span class="s-label">Platform Fee (1%)</span><span class="s-val">GHS 18</span></div>
+        <div class="summary-total"><span class="total-label">Total Due</span><span class="total-amount">GHS 1,818</span></div>
+        <div class="landlord-row">
+          <div class="landlord-avatar">K</div>
+          <div><div class="landlord-name">Kofi Mensah</div><div class="landlord-tag">Verified Landlord</div></div>
+          <div class="verified-dot">✓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="landlord-panel" id="landlord-panel">
+    <div class="lp-header"><div class="lp-title">Landlord View</div><div class="lp-badge">Live Transaction Received</div></div>
+    <div class="lp-card"><div class="lp-card::before"></div>
+      <div class="lp-body">
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">New Payment Received</div>
+        <div class="lp-txn-row"><div class="lp-txn-icon">💸</div><div class="lp-txn-info"><div class="lp-txn-name">Ama Owusu — Unit B</div><div class="lp-txn-meta">April 2025 Rent · <span id="lp-method">—</span> · Just now</div></div><div class="lp-txn-amount">+GHS 1,800</div></div>
+        <div class="lp-stats">
+          <div class="lp-stat"><div class="lp-stat-num" style="color:var(--success)">GHS 5,400</div><div class="lp-stat-lbl">This Month</div></div>
+          <div class="lp-stat"><div class="lp-stat-num" style="color:var(--accent)">3</div><div class="lp-stat-lbl">Payments</div></div>
+          <div class="lp-stat"><div class="lp-stat-num" style="color:var(--accent2)">2</div><div class="lp-stat-lbl">Pending</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+let currentStep=1,selectedMethod=null,selectedNet='mtn',pinValue='';
+function selectMethod(m){selectedMethod=m;['momo','card','bank'].forEach(x=>document.getElementById('m-'+x).classList.toggle('selected',x===m));document.getElementById('btn-1').disabled=false;}
+function goStep(n){
+  if(n===2&&currentStep===1){
+    document.getElementById('step-1').classList.remove('active');
+    document.getElementById('con-1').classList.add('done');
+    let sc1=document.getElementById('sc-1');sc1.classList.remove('active');sc1.classList.add('done');sc1.textContent='✓';
+    document.getElementById('sl-1').classList.remove('active');
+    currentStep=2;
+    document.getElementById('step-2').classList.add('active');
+    document.getElementById('sc-2').classList.add('active');
+    document.getElementById('sl-2').classList.add('active');
+    document.getElementById('form-momo').style.display=selectedMethod==='momo'?'block':'none';
+    document.getElementById('form-card').style.display=selectedMethod==='card'?'block':'none';
+    document.getElementById('form-bank').style.display=selectedMethod==='bank'?'block':'none';
+    if(selectedMethod==='bank')document.getElementById('btn-2').disabled=false;
+    document.getElementById('pay-panel').scrollIntoView({behavior:'smooth',block:'start'});return;
+  }
+  if(n===3&&currentStep===2){
+    document.getElementById('step-2').classList.remove('active');
+    document.getElementById('con-2').classList.add('done');
+    let sc2=document.getElementById('sc-2');sc2.classList.remove('active');sc2.classList.add('done');sc2.textContent='✓';
+    document.getElementById('sl-2').classList.remove('active');
+    currentStep=3;
+    document.getElementById('step-3').classList.add('active');
+    document.getElementById('sc-3').classList.add('active');
+    document.getElementById('sl-3').classList.add('active');
+    populateReview();
+    document.getElementById('pay-panel').scrollIntoView({behavior:'smooth',block:'start'});return;
+  }
+  if(n===4&&currentStep===3){
+    document.getElementById('step-3').classList.remove('active');
+    document.getElementById('con-3').classList.add('done');
+    let sc3=document.getElementById('sc-3');sc3.classList.remove('active');sc3.classList.add('done');sc3.textContent='✓';
+    document.getElementById('sl-3').classList.remove('active');
+    currentStep=4;
+    document.getElementById('step-4').classList.add('active');
+    document.getElementById('sc-4').classList.add('active');
+    document.getElementById('sl-4').classList.add('active');
+    document.getElementById('pay-panel').scrollIntoView({behavior:'smooth',block:'start'});return;
+  }
+}
+function checkStep2(){
+  let valid=false;
+  if(selectedMethod==='momo'){const num=document.getElementById('momo-number')?.value.replace(/\s/g,'');const name=document.getElementById('momo-name')?.value.trim();valid=num.length>=10&&name.length>2;}
+  else if(selectedMethod==='card'){const num=document.getElementById('card-number')?.value.replace(/\s/g,'');const name=document.getElementById('card-name')?.value.trim();const exp=document.getElementById('card-expiry')?.value;const cvv=document.getElementById('card-cvv')?.value;valid=num.length===16&&name.length>2&&exp.length>=5&&cvv.length>=3;}
+  document.getElementById('btn-2').disabled=!valid;
+}
+function selectNet(n){selectedNet=n;['mtn','voda','airtel'].forEach(x=>document.getElementById('net-'+x).classList.toggle('selected',x===n));}
+function formatCard(inp){let v=inp.value.replace(/\D/g,'').substring(0,16);inp.value=v.replace(/(.{4})/g,'$1 ').trim();const display=v.padEnd(16,'•');document.getElementById('card-num-display').textContent=display.substring(0,4)+' '+display.substring(4,8)+' '+display.substring(8,12)+' '+display.substring(12,16);}
+function updateCardName(){const name=document.getElementById('card-name')?.value.toUpperCase()||'YOUR NAME';document.getElementById('card-name-display').textContent=name||'YOUR NAME';}
+function formatExpiry(inp){let v=inp.value.replace(/\D/g,'');if(v.length>2)v=v.substring(0,2)+' / '+v.substring(2,4);inp.value=v;}
+function bankFileUploaded(inp){if(inp.files.length){document.getElementById('bank-proof-ok').style.display='block';document.getElementById('btn-2').disabled=false;}}
+function copyText(t){navigator.clipboard?.writeText(t);}
+function pinInput(d){if(pinValue.length>=4)return;pinValue+=d;updatePinDisplay();if(pinValue.length===4)document.getElementById('btn-3').disabled=false;}
+function pinDel(){pinValue=pinValue.slice(0,-1);updatePinDisplay();document.getElementById('btn-3').disabled=true;}
+function updatePinDisplay(){for(let i=1;i<=4;i++)document.getElementById('pd-'+i).classList.toggle('filled',i<=pinValue.length);}
+function populateReview(){const ml={momo:'📱 Mobile Money',card:'💳 Card',bank:'🏦 Bank Transfer'};document.getElementById('review-method').textContent=ml[selectedMethod]||'—';}
+function processPayment(){
+  const btn=document.getElementById('btn-3');btn.textContent='⏳ Processing...';btn.disabled=true;
+  setTimeout(()=>{
+    const txnId='SING-TXN-'+Math.floor(Math.random()*90000+10000);
+    const now=new Date();
+    const dateStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' · '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    const ml={momo:'Mobile Money ('+selectedNet.toUpperCase()+')',card:'Debit Card',bank:'Bank Transfer'};
+    document.getElementById('txn-id').textContent=txnId;
+    document.getElementById('txn-datetime').textContent=dateStr;
+    document.getElementById('txn-method').textContent=ml[selectedMethod]||'—';
+    document.getElementById('lp-method').textContent=ml[selectedMethod]||'—';
+    goStep(4);
+    setTimeout(()=>{document.getElementById('landlord-panel').classList.add('visible');document.getElementById('landlord-panel').scrollIntoView({behavior:'smooth',block:'start'});},800);
+    const receipt={txnId,datetime:dateStr,method:ml[selectedMethod],tenant:'Ama Owusu',landlord:'Kofi Mensah',property:'2-Bedroom Flat, East Legon',unit:'Unit B — Floor 2',period:'April 2025',rent:1800,fee:18,total:1818};
+    localStorage.setItem('singularity_last_receipt',JSON.stringify(receipt));
+  },2200);
+}
+function viewReceipt(){window.location.href='singularity-receipt.html';}
+</script>
+</body>
+</html>

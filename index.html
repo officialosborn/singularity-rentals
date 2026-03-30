@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Singularity Rentals — Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06080d;
+  --surface: #0f1318;
+  --surface2: #161c24;
+  --border: #1e2730;
+  --accent: #00e5ff;
+  --accent2: #7c3aed;
+  --accent3: #f59e0b;
+  --text: #e8edf2;
+  --muted: #4a5568;
+  --success: #10b981;
+  --danger: #ef4444;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  overflow-x: hidden;
+}
+
+/* ── NOISE GRAIN OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999; opacity: 0.4;
+}
+
+/* ── CURSOR ── */
+*, *:hover { cursor: default; }
+a, button, [onclick], label, input, select, textarea { cursor: pointer !important; }
+
+/* ══════════════════════════════
+   NAVBAR
+══════════════════════════════ */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  padding: 0 60px;
+  height: 68px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background 0.4s, border-color 0.4s;
+}
+.navbar.scrolled {
+  background: rgba(6,8,13,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { display: flex; flex-direction: column; }
+.nav-logo-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; letter-spacing: 0.2em;
+  color: var(--accent); line-height: 1;
+}
+.nav-logo-sub {
+  font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--muted); margin-top: 1px;
+}
+.nav-links { display: flex; gap: 4px; }
+.nav-a {
+  padding: 7px 18px; border-radius: 8px;
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); background: none; border: none;
+  transition: color 0.2s; font-family: 'DM Mono', monospace;
+  text-decoration: none;
+}
+.nav-a:hover { color: var(--text); }
+.nav-a[href="#about"] { color: var(--muted); }
+.nav-ctas { display: flex; gap: 10px; }
+.btn-nav-ghost {
+  padding: 8px 20px; border-radius: 9px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  transition: all 0.2s;
+}
+.btn-nav-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-nav-primary {
+  padding: 8px 20px; border-radius: 9px;
+  background: var(--accent); color: #000; border: none;
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  box-shadow: 0 0 20px rgba(0,229,255,0.3); transition: all 0.2s;
+}
+.btn-nav-primary:hover { box-shadow: 0 0 36px rgba(0,229,255,0.5); transform: translateY(-1px); }
+
+/* ══════════════════════════════
+   HERO SECTION
+══════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  padding: 0 40px;
+  text-align: center;
+}
+
+/* Animated BG grid */
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridShift 20s linear infinite;
+}
+@keyframes gridShift {
+  from { background-position: 0 0; }
+  to { background-position: 60px 60px; }
+}
+
+/* Orbs */
+.orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(140px); pointer-events: none;
+}
+.orb-1 { width: 800px; height: 800px; background: var(--accent2); top: -300px; right: -300px; opacity: 0.12; animation: orbFloat 16s ease-in-out infinite alternate; }
+.orb-2 { width: 600px; height: 600px; background: var(--accent); bottom: -200px; left: -200px; opacity: 0.08; animation: orbFloat 20s ease-in-out infinite alternate-reverse; }
+.orb-3 { width: 400px; height: 400px; background: var(--accent3); top: 40%; left: 50%; transform: translate(-50%,-50%); opacity: 0.05; animation: orbFloat 12s ease-in-out infinite alternate; }
+@keyframes orbFloat { from { transform: translate(0,0); } to { transform: translate(30px,25px); } }
+
+/* Diagonal accent line */
+.hero-line {
+  position: absolute;
+  width: 2px; height: 200px;
+  background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+  left: 80px; top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.4;
+  animation: linePulse 3s ease-in-out infinite;
+}
+.hero-line-r {
+  position: absolute;
+  width: 2px; height: 200px;
+  background: linear-gradient(to bottom, transparent, var(--accent2), transparent);
+  right: 80px; top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.4;
+  animation: linePulse 3s 1.5s ease-in-out infinite;
+}
+@keyframes linePulse { 0%,100%{opacity:0.2;height:120px} 50%{opacity:0.6;height:220px} }
+
+.hero-content { position: relative; z-index: 2; max-width: 900px; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 6px 18px; border-radius: 30px;
+  border: 1px solid rgba(0,229,255,0.2);
+  background: rgba(0,229,255,0.05);
+  font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 32px;
+  animation: fadeUp 0.7s ease both;
+}
+.eyebrow-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+.hero-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(64px, 11vw, 130px);
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  margin-bottom: 12px;
+  animation: fadeUp 0.7s 0.1s ease both;
+}
+.hero-title .line-1 { display: block; color: var(--text); }
+.hero-title .line-2 {
+  display: block;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-title .line-3 { display: block; color: var(--text); }
+
+.hero-sub {
+  font-size: 15px; color: #6b7c93; line-height: 1.7;
+  max-width: 560px; margin: 24px auto 48px;
+  animation: fadeUp 0.7s 0.2s ease both;
+}
+.hero-sub span { color: var(--accent); }
+
+.hero-ctas {
+  display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+  animation: fadeUp 0.7s 0.3s ease both;
+}
+
+.cta-card {
+  position: relative;
+  padding: 18px 36px; border-radius: 14px;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: pointer; border: none; transition: all 0.3s;
+  overflow: hidden;
+}
+.cta-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  opacity: 0; transition: opacity 0.3s;
+}
+.cta-landlord {
+  background: var(--accent);
+  color: #000;
+  box-shadow: 0 0 40px rgba(0,229,255,0.25);
+}
+.cta-landlord:hover {
+  box-shadow: 0 0 60px rgba(0,229,255,0.5);
+  transform: translateY(-3px) scale(1.02);
+}
+.cta-tenant {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(4px);
+}
+.cta-tenant:hover {
+  border-color: var(--accent2);
+  color: var(--accent2);
+  box-shadow: 0 0 40px rgba(124,58,237,0.2);
+  transform: translateY(-3px) scale(1.02);
+}
+.cta-label { display: block; font-size: 11px; font-weight: 400; opacity: 0.7; margin-bottom: 4px; letter-spacing: 0.15em; }
+.cta-main { display: block; font-size: 15px; font-weight: 700; }
+
+/* Scroll indicator */
+.scroll-hint {
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted); animation: fadeUp 1s 0.8s ease both;
+  z-index: 2;
+}
+.scroll-arrow {
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, var(--muted), transparent);
+  animation: scrollDrop 2s ease-in-out infinite;
+}
+@keyframes scrollDrop { 0%{transform:scaleY(0);transform-origin:top} 50%{transform:scaleY(1);transform-origin:top} 51%{transform-origin:bottom} 100%{transform:scaleY(0);transform-origin:bottom} }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+
+/* ══════════════════════════════
+   STATS BAR
+══════════════════════════════ */
+.stats-bar {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 32px 80px;
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 0;
+}
+.stat-item {
+  text-align: center;
+  padding: 0 20px;
+  border-right: 1px solid var(--border);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 48px; letter-spacing: 0.05em;
+  color: var(--accent); line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-lbl { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+
+/* ══════════════════════════════
+   ABOUT / VISION SECTION
+══════════════════════════════ */
+#about {
+  padding: 120px 80px;
+  position: relative; overflow: hidden;
+}
+.about-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+  max-width: 1200px; margin: 0 auto;
+}
+.about-tag {
+  display: inline-block; padding: 5px 16px; border-radius: 20px;
+  border: 1px solid rgba(124,58,237,0.3);
+  background: rgba(124,58,237,0.07);
+  font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--accent2); margin-bottom: 24px;
+}
+.about-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 1; margin-bottom: 24px; letter-spacing: 0.03em;
+}
+.about-title em { font-style: normal; color: var(--accent2); }
+.about-body {
+  font-size: 14px; color: #6b7c93; line-height: 1.85;
+  margin-bottom: 20px;
+}
+.about-body strong { color: var(--text); }
+
+.vision-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 32px;
+  margin-top: 32px;
+  position: relative; overflow: hidden;
+}
+.vision-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+}
+.vision-label {
+  font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 14px;
+}
+.vision-text {
+  font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: 18px; line-height: 1.5; color: var(--text);
+}
+.vision-text span { color: var(--accent); }
+
+/* About right: visual grid */
+.about-visual {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.about-tile {
+  border-radius: 16px; padding: 24px;
+  display: flex; flex-direction: column;
+  gap: 12px; position: relative; overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: border-color 0.25s, transform 0.25s;
+}
+.about-tile:hover { border-color: rgba(0,229,255,0.25); transform: translateY(-3px); }
+.about-tile:nth-child(1) { grid-column: span 2; background: linear-gradient(135deg,#0a0f1e,#141a2e); }
+.tile-icon { font-size: 28px; }
+.tile-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+.tile-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.tile-accent { position: absolute; top: 0; right: 0; width: 60px; height: 60px; border-radius: 0 16px 0 60px; opacity: 0.08; }
+.t1 .tile-accent { background: var(--accent); }
+.t2 .tile-accent { background: var(--accent2); }
+.t3 .tile-accent { background: var(--accent3); }
+.t4 .tile-accent { background: var(--success); }
+
+/* ══════════════════════════════
+   HOW IT WORKS
+══════════════════════════════ */
+#how {
+  padding: 100px 80px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.section-eyebrow {
+  text-align: center;
+  font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 16px;
+}
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(36px, 5vw, 60px);
+  text-align: center; margin-bottom: 64px;
+  letter-spacing: 0.03em;
+}
+.how-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 2px; max-width: 1100px; margin: 0 auto;
+}
+.how-col {
+  padding: 48px 40px;
+  border: 1px solid var(--border);
+  border-radius: 0; position: relative;
+  transition: background 0.25s;
+}
+.how-col:first-child { border-radius: 16px 0 0 16px; }
+.how-col:last-child { border-radius: 0 16px 16px 0; }
+.how-col:hover { background: var(--surface2); }
+.how-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 72px; color: var(--border);
+  line-height: 1; margin-bottom: 20px;
+  transition: color 0.25s;
+}
+.how-col:hover .how-num { color: var(--accent); }
+.how-icon { font-size: 32px; margin-bottom: 16px; }
+.how-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 12px; }
+.how-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
+.how-role {
+  display: inline-block; margin-top: 16px;
+  font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+/* ══════════════════════════════
+   FINAL CTA
+══════════════════════════════ */
+.final-cta {
+  padding: 120px 80px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.final-cta::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,229,255,0.05) 0%, transparent 70%);
+}
+.final-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px,8vw,96px);
+  letter-spacing: 0.03em; line-height: 0.95;
+  margin-bottom: 24px; position: relative; z-index: 1;
+}
+.final-title span { color: var(--accent); }
+.final-sub { font-size: 14px; color: var(--muted); margin-bottom: 48px; position: relative; z-index: 1; }
+.final-btns { display: flex; gap: 14px; justify-content: center; position: relative; z-index: 1; }
+
+/* ══════════════════════════════
+   FOOTER
+══════════════════════════════ */
+footer {
+  padding: 40px 80px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface);
+}
+.footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.2em; color: var(--accent); }
+.footer-copy { font-size: 11px; color: var(--muted); }
+.footer-links { display: flex; gap: 24px; }
+.footer-link { font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s; }
+.footer-link:hover { color: var(--text); }
+
+/* ══════════════════════════════
+   AUTH OVERLAY
+══════════════════════════════ */
+.auth-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(10px);
+  z-index: 600;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.auth-overlay.open { opacity: 1; pointer-events: all; }
+
+.auth-panel {
+  width: 480px; max-height: 90vh; overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  transform: translateY(24px) scale(0.97);
+  transition: all 0.3s;
+  position: relative; overflow: hidden;
+}
+.auth-overlay.open .auth-panel { transform: none; }
+
+/* Top accent bar */
+.auth-panel::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--panel-accent, linear-gradient(90deg, var(--accent2), var(--accent)));
+  z-index: 2;
+}
+
+/* BG orb inside panel */
+.auth-panel::after {
+  content: '';
+  position: absolute; top: -80px; right: -80px;
+  width: 240px; height: 240px;
+  border-radius: 50%;
+  background: var(--panel-orb, var(--accent2));
+  filter: blur(80px); opacity: 0.08;
+  pointer-events: none; z-index: 0;
+}
+
+.auth-inner { padding: 36px; position: relative; z-index: 1; }
+
+/* Role selector */
+.role-select-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-bottom: 28px;
+}
+.role-card {
+  padding: 16px 14px; border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--surface2);
+  cursor: pointer; transition: all 0.2s;
+  text-align: center;
+}
+.role-card:hover { border-color: rgba(0,229,255,0.3); }
+.role-card.selected.landlord { border-color: var(--accent); background: rgba(0,229,255,0.06); }
+.role-card.selected.tenant { border-color: var(--accent2); background: rgba(124,58,237,0.08); }
+.role-icon { font-size: 28px; margin-bottom: 8px; }
+.role-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; }
+.role-desc { font-size: 10px; color: var(--muted); margin-top: 3px; letter-spacing: 0.05em; }
+
+/* Tab switcher */
+.auth-tabs {
+  display: flex; background: var(--surface2);
+  border-radius: 11px; padding: 4px;
+  margin-bottom: 28px;
+}
+.auth-tab {
+  flex: 1; padding: 9px; border-radius: 8px;
+  font-family: 'DM Mono', monospace; font-size: 12px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  background: none; border: none; color: var(--muted);
+  cursor: pointer; transition: all 0.2s;
+}
+.auth-tab.active { background: var(--surface); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+
+.auth-title {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 24px; margin-bottom: 6px;
+}
+.auth-sub { font-size: 12px; color: var(--muted); margin-bottom: 28px; }
+
+.form-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 8px; }
+.form-input, .form-select {
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 11px; padding: 12px 16px;
+  color: var(--text); font-family: 'DM Mono', monospace;
+  font-size: 13px; outline: none; transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,229,255,0.07); }
+.form-group { margin-bottom: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Input with icon */
+.input-wrap { position: relative; }
+.input-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); width: 16px; height: 16px;
+}
+.input-wrap .form-input { padding-left: 40px; }
+
+.input-toggle {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: 16px; cursor: pointer;
+  background: none; border: none; padding: 0;
+}
+
+/* ID upload for landlord */
+.id-upload {
+  border: 2px dashed var(--border); border-radius: 12px;
+  padding: 22px; text-align: center; cursor: pointer;
+  transition: all 0.2s; position: relative;
+}
+.id-upload:hover { border-color: var(--accent); background: rgba(0,229,255,0.03); }
+.id-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.id-upload-icon { font-size: 28px; margin-bottom: 8px; }
+.id-upload-text { font-size: 11px; color: var(--muted); }
+.id-upload-text strong { color: var(--accent); }
+
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0; font-size: 11px; color: var(--muted);
+}
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.submit-btn {
+  width: 100%; padding: 14px; border-radius: 12px;
+  font-family: 'DM Mono', monospace; font-size: 13px;
+  font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  border: none; cursor: pointer; transition: all 0.2s; margin-top: 8px;
+  background: var(--accent); color: #000;
+  box-shadow: 0 0 24px rgba(0,229,255,0.25);
+}
+.submit-btn:hover { box-shadow: 0 0 40px rgba(0,229,255,0.45); transform: translateY(-1px); }
+.submit-btn.tenant-btn {
+  background: linear-gradient(135deg, var(--accent2), #9333ea);
+  color: white;
+  box-shadow: 0 0 24px rgba(124,58,237,0.3);
+}
+.submit-btn.tenant-btn:hover { box-shadow: 0 0 40px rgba(124,58,237,0.5); }
+
+.auth-footer-note {
+  text-align: center; margin-top: 18px;
+  font-size: 11px; color: var(--muted);
+}
+.auth-footer-note a { color: var(--accent); text-decoration: none; }
+.auth-footer-note a:hover { text-decoration: underline; }
+
+.auth-close {
+  position: absolute; top: 20px; right: 20px; z-index: 10;
+  width: 32px; height: 32px; border-radius: 9px;
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--muted); display: flex; align-items: center; justify-content: center;
+  font-size: 16px; cursor: pointer; transition: all 0.2s;
+}
+.auth-close:hover { color: var(--text); border-color: var(--text); }
+
+/* Success */
+.auth-success {
+  text-align: center; padding: 20px 0 10px;
+}
+.success-ring {
+  width: 80px; height: 80px; border-radius: 22px;
+  background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 38px; margin: 0 auto 20px;
+  animation: popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;
+}
+@keyframes popIn { from{transform:scale(0.4);opacity:0} to{transform:scale(1);opacity:1} }
+.success-name { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 0.05em; margin-bottom: 8px; }
+.success-msg { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 28px; }
+.success-go-btn {
+  width: 100%; padding: 14px; border-radius: 12px;
+  font-family: 'DM Mono', monospace; font-size: 13px;
+  font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  border: none; cursor: pointer; transition: all 0.2s;
+}
+
+/* ── scrollbar ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-logo">
+    <div class="nav-logo-mark">Singularity</div>
+    <div class="nav-logo-sub">Rentals</div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-a" href="#about">About</a>
+    <a class="nav-a" href="#how">How it works</a>
+  </div>
+  <div class="nav-ctas">
+    <button class="btn-nav-ghost" onclick="openAuth('login')">Log In</button>
+    <button class="btn-nav-primary" onclick="openAuth('signup')">Get Started</button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero" id="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="hero-line"></div>
+  <div class="hero-line-r"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <div class="eyebrow-dot"></div>
+      Now Live in Accra, Ghana
+    </div>
+
+    <h1 class="hero-title">
+      <span class="line-1">Where</span>
+      <span class="line-2">Landlords</span>
+      <span class="line-3">Meet Tenants</span>
+    </h1>
+
+    <p class="hero-sub">
+      <span>Singularity Rentals</span> bridges the gap between property owners and renters —
+      post listings, find your perfect space, pay rent, and receive digital receipts. All in one place.
+    </p>
+
+    <div class="hero-ctas">
+      <button class="cta-card cta-landlord" onclick="openAuth('signup','landlord')">
+        <span class="cta-label">I own property</span>
+        <span class="cta-main">Sign Up as Landlord →</span>
+      </button>
+      <button class="cta-card cta-tenant" onclick="openAuth('signup','tenant')">
+        <span class="cta-label">I'm looking for a place</span>
+        <span class="cta-main">Sign Up as Tenant →</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ══ STATS BAR ══ -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num" data-target="200">0</div>
+    <div class="stat-lbl">Properties Listed</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="850">0</div>
+    <div class="stat-lbl">Happy Tenants</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="120">0</div>
+    <div class="stat-lbl">Verified Landlords</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-target="98">0</div>
+    <div class="stat-lbl">% Satisfaction Rate</div>
+  </div>
+</div>
+
+<!-- ══ ABOUT ══ -->
+<section id="about">
+  <div class="about-grid">
+    <div>
+      <div class="about-tag">Our Mission</div>
+      <h2 class="about-title">Bridging the Gap<br>Between <em>People</em><br>& Places</h2>
+      <p class="about-body">
+        Renting in Ghana has always been a challenge — disconnected landlords, frustrated tenants, cash-only payments, and zero accountability. <strong>Singularity Rentals</strong> was built to change that.
+      </p>
+      <p class="about-body">
+        We believe that finding a home should be simple, transparent, and human. Our platform brings landlords and tenants together in a single digital space — where listings are verified, payments are tracked, and receipts are instant.
+      </p>
+
+      <div class="vision-card">
+        <div class="vision-label">Our Vision</div>
+        <div class="vision-text">
+          "To become the most trusted rental platform in West Africa — where every tenant finds their home and every landlord manages their property with <span>confidence</span>."
+        </div>
+      </div>
+    </div>
+
+    <div class="about-visual">
+      <div class="about-tile t1">
+        <div class="tile-accent"></div>
+        <div class="tile-icon">🔗</div>
+        <div class="tile-title">Direct Connection</div>
+        <div class="tile-desc">No middlemen. Landlords and tenants communicate and transact directly through our verified platform.</div>
+      </div>
+      <div class="about-tile t2">
+        <div class="tile-accent"></div>
+        <div class="tile-icon">🔒</div>
+        <div class="tile-title">Secure Payments</div>
+        <div class="tile-desc">Every transaction is encrypted and tracked. No more lost cash or disputed payments.</div>
+      </div>
+      <div class="about-tile t3">
+        <div class="tile-accent"></div>
+        <div class="tile-icon">🧾</div>
+        <div class="tile-title">Instant Receipts</div>
+        <div class="tile-desc">Digital receipts generated automatically after every payment. Always on record.</div>
+      </div>
+      <div class="about-tile t4">
+        <div class="tile-accent"></div>
+        <div class="tile-icon">✅</div>
+        <div class="tile-title">Verified Listings</div>
+        <div class="tile-desc">All properties and landlords are reviewed before going live. Trust by design.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ HOW IT WORKS ══ -->
+<section id="how">
+  <div class="section-eyebrow">Simple Process</div>
+  <div class="section-title">How It Works</div>
+  <div class="how-grid">
+    <div class="how-col">
+      <div class="how-num">01</div>
+      <div class="how-icon">📝</div>
+      <div class="how-title">Create Your Account</div>
+      <div class="how-desc">Sign up as a landlord or tenant in minutes. Verify your identity and get access to the full platform.</div>
+      <span class="how-role">Both</span>
+    </div>
+    <div class="how-col">
+      <div class="how-num">02</div>
+      <div class="how-icon">🏠</div>
+      <div class="how-title">Post or Browse</div>
+      <div class="how-desc">Landlords upload photos and details of their rooms. Tenants browse, filter, and find their perfect match.</div>
+      <span class="how-role">Landlord / Tenant</span>
+    </div>
+    <div class="how-col">
+      <div class="how-num">03</div>
+      <div class="how-icon">💳</div>
+      <div class="how-title">Pay & Move In</div>
+      <div class="how-desc">Select your room, make a secure payment, and receive a digital receipt instantly. It's that simple.</div>
+      <span class="how-role">Tenant</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FINAL CTA ══ -->
+<section class="final-cta">
+  <h2 class="final-title">Your Space.<br><span>Simplified.</span></h2>
+  <p class="final-sub">Join thousands of landlords and tenants already using Singularity Rentals.</p>
+  <div class="final-btns">
+    <button class="cta-card cta-landlord" onclick="openAuth('signup','landlord')">
+      <span class="cta-label">List your property</span>
+      <span class="cta-main">I'm a Landlord →</span>
+    </button>
+    <button class="cta-card cta-tenant" onclick="openAuth('signup','tenant')">
+      <span class="cta-label">Find your home</span>
+      <span class="cta-main">I'm a Tenant →</span>
+    </button>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-logo">Singularity Rentals</div>
+  <div class="footer-copy">© 2025 Singularity Rentals. All rights reserved.</div>
+  <div class="footer-links">
+    <a class="footer-link" href="#about">About</a>
+    <a class="footer-link" href="#how">How it works</a>
+    <a class="footer-link" href="#" onclick="openAuth('login')">Log In</a>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════
+     AUTH OVERLAY
+══════════════════════════════ -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-panel" id="auth-panel">
+    <div class="auth-close" onclick="closeAuth()">✕</div>
+    <div class="auth-inner" id="auth-inner">
+      <!-- injected by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Navbar scroll ── */
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+/* ── Counter animation ── */
+function animateCounters() {
+  document.querySelectorAll('[data-target]').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    let current = 0;
+    const step = target / 60;
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = Math.floor(current) + (target === 98 ? '%' : '+');
+      if (current >= target) clearInterval(timer);
+    }, 20);
+  });
+}
+const statsObs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) { animateCounters(); statsObs.disconnect(); }
+}, { threshold: 0.3 });
+statsObs.observe(document.querySelector('.stats-bar'));
+
+/* ── Auth state ── */
+let authMode = 'signup'; // 'signup' | 'login'
+let authRole = 'landlord'; // 'landlord' | 'tenant'
+
+function openAuth(mode, role) {
+  authMode = mode || 'signup';
+  authRole = role || 'landlord';
+  renderAuth();
+  document.getElementById('auth-overlay').classList.add('open');
+}
+function closeAuth() {
+  document.getElementById('auth-overlay').classList.remove('open');
+}
+
+function renderAuth() {
+  const isLandlord = authRole === 'landlord';
+  const isSignup = authMode === 'signup';
+
+  // Panel styling per role
+  const panel = document.getElementById('auth-panel');
+  panel.style.setProperty('--panel-accent',
+    isLandlord
+      ? 'linear-gradient(90deg, var(--accent), #00b8d9)'
+      : 'linear-gradient(90deg, var(--accent2), #9333ea)');
+  panel.style.setProperty('--panel-orb',
+    isLandlord ? 'var(--accent)' : 'var(--accent2)');
+
+  document.getElementById('auth-inner').innerHTML = `
+    <!-- Role selector -->
+    <div style="margin-bottom:24px">
+      <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">I am a...</div>
+      <div class="role-select-row">
+        <div class="role-card landlord ${authRole==='landlord'?'selected':''}" onclick="switchRole('landlord')">
+          <div class="role-icon">🏠</div>
+          <div class="role-name">Landlord</div>
+          <div class="role-desc">I own property</div>
+        </div>
+        <div class="role-card tenant ${authRole==='tenant'?'selected':''}" onclick="switchRole('tenant')">
+          <div class="role-icon">🔑</div>
+          <div class="role-name">Tenant</div>
+          <div class="role-desc">I'm looking for a place</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab switcher -->
+    <div class="auth-tabs">
+      <button class="auth-tab ${authMode==='signup'?'active':''}" onclick="switchMode('signup')">Sign Up</button>
+      <button class="auth-tab ${authMode==='login'?'active':''}" onclick="switchMode('login')">Log In</button>
+    </div>
+
+    <!-- Title -->
+    <div class="auth-title">${isSignup ? (isLandlord ? 'Join as Landlord' : 'Find Your Home') : 'Welcome Back'}</div>
+    <div class="auth-sub">${isSignup ? 'Create your account to get started.' : 'Sign in to your ' + authRole + ' account.'}</div>
+
+    ${isSignup ? `
+    <!-- SIGN UP FORM -->
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <div class="input-wrap">
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <input type="text" class="form-input" placeholder="Kwame Osei" id="f-name">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <input type="email" class="form-input" placeholder="you@email.com" id="f-email">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.1 1.18 2 2 0 012.11 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+          <input type="tel" class="form-input" placeholder="+233 XX XXX XXXX" id="f-phone">
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="input-wrap">
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <input type="password" class="form-input" placeholder="Min. 8 characters" id="f-pass">
+        <button class="input-toggle" onclick="togglePass('f-pass')">👁</button>
+      </div>
+    </div>
+    ${isLandlord ? `
+    <div class="form-group">
+      <label class="form-label">Upload ID / Verification</label>
+      <div class="id-upload">
+        <input type="file" accept="image/*,.pdf" onchange="handleIdUpload(this)">
+        <div class="id-upload-icon">🪪</div>
+        <div class="id-upload-text"><strong>Click to upload</strong> your National ID or passport</div>
+        <div class="id-upload-text" style="margin-top:4px;font-size:10px;color:var(--muted)">PNG, JPG, PDF</div>
+      </div>
+      <div id="id-uploaded" style="display:none;margin-top:8px;font-size:11px;color:var(--success)">✓ ID uploaded successfully</div>
+    </div>
+    ` : ''}
+    ` : `
+    <!-- LOG IN FORM -->
+    <div class="form-group">
+      <label class="form-label">Email or Phone</label>
+      <div class="input-wrap">
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <input type="text" class="form-input" placeholder="Email or phone number" id="f-login-id">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="input-wrap">
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <input type="password" class="form-input" placeholder="Your password" id="f-login-pass">
+        <button class="input-toggle" onclick="togglePass('f-login-pass')">👁</button>
+      </div>
+    </div>
+    <div style="text-align:right;margin-top:-8px;margin-bottom:16px">
+      <a href="#" style="font-size:11px;color:var(--accent);text-decoration:none">Forgot password?</a>
+    </div>
+    `}
+
+    <button class="submit-btn ${authRole==='tenant'?'tenant-btn':''}" onclick="handleSubmit()">
+      ${isSignup ? (isLandlord ? '🏠 Create Landlord Account' : '🔑 Create Tenant Account') : 'Log In →'}
+    </button>
+
+    <div class="auth-footer-note">
+      ${isSignup
+        ? `Already have an account? <a href="#" onclick="switchMode('login')">Log In</a>`
+        : `Don't have an account? <a href="#" onclick="switchMode('signup')">Sign Up</a>`}
+    </div>
+  `;
+}
+
+function switchRole(role) {
+  authRole = role;
+  renderAuth();
+}
+function switchMode(mode) {
+  authMode = mode;
+  renderAuth();
+}
+function togglePass(id) {
+  const inp = document.getElementById(id);
+  if (inp) inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+function handleIdUpload(input) {
+  if (input.files.length) {
+    document.getElementById('id-uploaded').style.display = 'block';
+  }
+}
+
+function handleSubmit() {
+  const isSignup = authMode === 'signup';
+  const isLandlord = authRole === 'landlord';
+
+  if (isSignup) {
+    const name = document.getElementById('f-name')?.value.trim();
+    const email = document.getElementById('f-email')?.value.trim();
+    const phone = document.getElementById('f-phone')?.value.trim();
+    const pass = document.getElementById('f-pass')?.value.trim();
+    if (!name || (!email && !phone) || !pass) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+  } else {
+    const loginId = document.getElementById('f-login-id')?.value.trim();
+    const pass = document.getElementById('f-login-pass')?.value.trim();
+    if (!loginId || !pass) {
+      alert('Please enter your email/phone and password.');
+      return;
+    }
+  }
+
+  showSuccess();
+}
+
+function showSuccess() {
+  const isLandlord = authRole === 'landlord';
+  const name = document.getElementById('f-name')?.value.trim() || (isLandlord ? 'Kwame' : 'Ama');
+  const firstName = name.split(' ')[0];
+
+  document.getElementById('auth-inner').innerHTML = `
+    <div class="auth-success">
+      <div class="success-ring">${isLandlord ? '🏠' : '🔑'}</div>
+      <div class="success-name">Welcome, ${firstName}!</div>
+      <div class="success-msg">
+        Your ${isLandlord ? 'landlord' : 'tenant'} account has been created.<br>
+        ${isLandlord
+          ? 'You can now post listings, manage tenants, and track payments.'
+          : 'You can now browse listings, select a room, and make payments.'}
+      </div>
+      <button class="submit-btn ${isLandlord ? '' : 'tenant-btn'} success-go-btn"
+        onclick="goToDashboard()">
+        Go to ${isLandlord ? 'Landlord' : 'Tenant'} Dashboard →
+      </button>
+    </div>
+  `;
+}
+
+function goToDashboard() {
+  const isLandlord = authRole === 'landlord';
+  closeAuth();
+  // Navigate to the respective dashboard
+  window.location.href = isLandlord ? 'singularity-rentals.html' : 'singularity-tenant.html';
+}
+
+/* ── Close on backdrop click ── */
+document.getElementById('auth-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeAuth();
+});
+</script>
+</body>
+</html>

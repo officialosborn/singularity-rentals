@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Singularity Rentals — Landlord</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b10;
+    --surface: #0f1318;
+    --surface2: #161c24;
+    --border: #1e2730;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --accent3: #f59e0b;
+    --text: #e8edf2;
+    --muted: #4a5568;
+    --danger: #ef4444;
+    --success: #10b981;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 { width: 600px; height: 600px; background: var(--accent2); top: -200px; right: -200px; animation: drift 12s ease-in-out infinite alternate; }
+  .orb-2 { width: 400px; height: 400px; background: var(--accent); bottom: -100px; left: -100px; animation: drift 16s ease-in-out infinite alternate-reverse; }
+  @keyframes drift { from { transform: translate(0,0); } to { transform: translate(40px, 30px); } }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    padding: 0 0 24px;
+  }
+
+  .logo {
+    padding: 28px 24px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-mark {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .logo-sub {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    text-transform: uppercase;
+  }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active {
+    color: var(--accent);
+    background: rgba(0,229,255,0.06);
+    border-color: rgba(0,229,255,0.15);
+  }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .nav-section {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 16px 12px 6px;
+  }
+
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+  }
+  .landlord-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: white;
+  }
+  .landlord-info { flex: 1; min-width: 0; }
+  .landlord-name { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .landlord-role { font-size: 10px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* MAIN */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    position: sticky;
+    top: 0;
+    background: rgba(8,11,16,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 50;
+  }
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text);
+  }
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+  .btn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    font-weight: 600;
+    box-shadow: 0 0 20px rgba(0,229,255,0.25);
+  }
+  .btn-primary:hover { box-shadow: 0 0 32px rgba(0,229,255,0.45); transform: translateY(-1px); }
+
+  /* CONTENT */
+  .content { padding: 32px; }
+
+  /* STATS ROW */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: rgba(0,229,255,0.3); }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--accent));
+  }
+  .stat-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--text); line-height: 1; }
+  .stat-delta { font-size: 11px; margin-top: 6px; color: var(--success); }
+  .stat-delta.down { color: var(--danger); }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  /* FILTER BAR */
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 24px; }
+  .filter-chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    font-family: 'DM Mono', monospace;
+  }
+  .filter-chip.active, .filter-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,229,255,0.06);
+  }
+
+  /* LISTINGS GRID */
+  .listings-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .listing-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+    animation: fadeUp 0.4s ease both;
+  }
+  .listing-card:hover {
+    border-color: rgba(0,229,255,0.25);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(0,229,255,0.06);
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .listing-card:nth-child(1) { animation-delay: 0.05s; }
+  .listing-card:nth-child(2) { animation-delay: 0.1s; }
+  .listing-card:nth-child(3) { animation-delay: 0.15s; }
+  .listing-card:nth-child(4) { animation-delay: 0.2s; }
+  .listing-card:nth-child(5) { animation-delay: 0.25s; }
+  .listing-card:nth-child(6) { animation-delay: 0.3s; }
+
+  .listing-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+    position: relative;
+  }
+  .listing-img-wrap {
+    position: relative;
+    overflow: hidden;
+  }
+  .listing-img-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(8,11,16,0.8) 0%, transparent 50%);
+  }
+
+  /* Placeholder image for demo */
+  .img-placeholder {
+    width: 100%;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    position: relative;
+  }
+
+  .listing-badge {
+    position: absolute;
+    top: 12px; right: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    z-index: 2;
+  }
+  .badge-available { background: rgba(16,185,129,0.2); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-occupied { background: rgba(239,68,68,0.2); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-pending { background: rgba(245,158,11,0.15); color: var(--accent3); border: 1px solid rgba(245,158,11,0.3); }
+
+  .listing-body { padding: 16px; }
+  .listing-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .listing-address { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+
+  .listing-meta { display: flex; gap: 12px; margin-bottom: 14px; }
+  .meta-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+  .meta-item svg { width: 13px; height: 13px; }
+
+  .listing-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .listing-price { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--accent); }
+  .listing-price span { font-size: 11px; font-weight: 400; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+  .listing-actions { display: flex; gap: 6px; }
+  .icon-btn {
+    width: 30px; height: 30px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .icon-btn svg { width: 14px; height: 14px; }
+
+  /* ADD LISTING MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    width: 560px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 32px;
+    transform: translateY(20px) scale(0.97);
+    transition: all 0.25s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+  .modal-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; }
+  .modal-close {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { color: var(--text); border-color: var(--text); }
+
+  .form-group { margin-bottom: 18px; }
+  .form-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 8px; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+  .form-textarea { resize: vertical; min-height: 90px; }
+  .form-select option { background: var(--surface); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .upload-zone:hover { border-color: var(--accent); background: rgba(0,229,255,0.03); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-icon { font-size: 32px; margin-bottom: 10px; }
+  .upload-text { font-size: 12px; color: var(--muted); }
+  .upload-text strong { color: var(--accent); }
+
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 32px; right: 32px;
+    background: var(--surface2);
+    border: 1px solid var(--success);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px;
+    z-index: 300;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    color: var(--success);
+    box-shadow: 0 0 20px rgba(16,185,129,0.2);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo" onclick="window.location.href='singularity-home.html'" style="cursor:pointer" title="Back to Home">
+    <div class="logo-mark">Singularity</div>
+    <div class="logo-sub">Rentals</div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section">Manage</div>
+    <div class="nav-item active" onclick="switchTab('listings', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      My Listings
+    </div>
+    <div class="nav-item" onclick="switchTab('tenants', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Tenants
+    </div>
+    <div class="nav-item" onclick="window.location.href='singularity-payment.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Payments
+    </div>
+    <div class="nav-section">Reports</div>
+    <div class="nav-item" onclick="window.location.href='singularity-receipt.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+      Receipts
+    </div>
+    <div class="nav-item" onclick="window.location.href='singularity-analytics.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Analytics
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="landlord-badge" style="cursor:pointer" onclick="window.location.href='singularity-home.html'" title="Log Out">
+      <div class="avatar">KO</div>
+      <div class="landlord-info">
+        <div class="landlord-name">Kwame Osei</div>
+        <div class="landlord-role" style="color:var(--muted)">🚪 Log Out</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">My Listings</div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost">Export</button>
+      <button class="btn btn-primary" onclick="openModal()">+ Add Listing</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card" style="--card-accent: var(--accent)">
+        <div class="stat-label">Total Listings</div>
+        <div class="stat-value">12</div>
+        <div class="stat-delta">↑ 2 this month</div>
+      </div>
+      <div class="stat-card" style="--card-accent: var(--success)">
+        <div class="stat-label">Occupied</div>
+        <div class="stat-value">8</div>
+        <div class="stat-delta">67% occupancy</div>
+      </div>
+      <div class="stat-card" style="--card-accent: var(--accent3)">
+        <div class="stat-label">Pending Review</div>
+        <div class="stat-value">2</div>
+        <div class="stat-delta">Awaiting tenants</div>
+      </div>
+      <div class="stat-card" style="--card-accent: var(--accent2)">
+        <div class="stat-label">Monthly Revenue</div>
+        <div class="stat-value">₵18.4K</div>
+        <div class="stat-delta">↑ 12% vs last month</div>
+      </div>
+    </div>
+
+    <!-- LISTINGS TAB -->
+    <div id="tab-listings">
+      <div class="section-header">
+        <div class="section-title">All Properties</div>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-chip active" onclick="setFilter(this, 'all')">All (12)</button>
+        <button class="filter-chip" onclick="setFilter(this, 'available')">Available (4)</button>
+        <button class="filter-chip" onclick="setFilter(this, 'occupied')">Occupied (8)</button>
+        <button class="filter-chip" onclick="setFilter(this, 'pending')">Pending (2)</button>
+      </div>
+
+      <div class="listings-grid" id="listings-grid">
+        <!-- Cards injected by JS -->
+      </div>
+    </div>
+
+    <!-- TENANTS TAB -->
+    <div id="tab-tenants" style="display:none">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px 32px;text-align:center;color:var(--muted);">
+        <div style="font-size:48px;margin-bottom:20px">👥</div>
+        <div style="font-family:'Syne',sans-serif;font-size:20px;color:var(--text);margin-bottom:10px;">Tenant Management</div>
+        <div style="font-size:13px;margin-bottom:28px;line-height:1.7;">View all tenants, lease status, contact info and history.</div>
+        <button onclick="window.location.href='singularity-tenant.html'" style="padding:12px 28px;background:var(--accent);color:#000;border:none;border-radius:10px;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 20px rgba(0,229,255,0.25);">View Tenant Portal →</button>
+      </div>
+    </div>
+
+    <!-- PAYMENTS TAB -->
+    <div id="tab-payments" style="display:none">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px 32px;text-align:center;color:var(--muted);">
+        <div style="font-size:48px;margin-bottom:20px">💳</div>
+        <div style="font-family:'Syne',sans-serif;font-size:20px;color:var(--text);margin-bottom:10px;">Payment Transactions</div>
+        <div style="font-size:13px;margin-bottom:28px;line-height:1.7;">Process and track all rent payments, review transaction history and manage outstanding balances.</div>
+        <button onclick="window.location.href='singularity-payment.html'" style="padding:12px 28px;background:var(--accent);color:#000;border:none;border-radius:10px;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 20px rgba(0,229,255,0.25);">Go to Payments →</button>
+      </div>
+    </div>
+
+    <!-- RECEIPTS TAB -->
+    <div id="tab-receipts" style="display:none">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px 32px;text-align:center;color:var(--muted);">
+        <div style="font-size:48px;margin-bottom:20px">🧾</div>
+        <div style="font-family:'Syne',sans-serif;font-size:20px;color:var(--text);margin-bottom:10px;">Digital Receipts</div>
+        <div style="font-size:13px;margin-bottom:28px;line-height:1.7;">Auto-generated receipts after every payment. Download, share or print — all in one place.</div>
+        <button onclick="window.location.href='singularity-receipt.html'" style="padding:12px 28px;background:var(--accent);color:#000;border:none;border-radius:10px;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 20px rgba(0,229,255,0.25);">View Receipts →</button>
+      </div>
+    </div>
+
+    <!-- ANALYTICS TAB -->
+    <div id="tab-analytics" style="display:none">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px 32px;text-align:center;color:var(--muted);">
+        <div style="font-size:48px;margin-bottom:20px">📊</div>
+        <div style="font-family:'Syne',sans-serif;font-size:20px;color:var(--text);margin-bottom:10px;">Analytics Dashboard</div>
+        <div style="font-size:13px;margin-bottom:28px;line-height:1.7;">Revenue trends, occupancy rates, income breakdowns and forecasts for your portfolio.</div>
+        <button onclick="window.location.href='singularity-analytics.html'" style="padding:12px 28px;background:var(--accent);color:#000;border:none;border-radius:10px;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 20px rgba(0,229,255,0.25);">Open Analytics →</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ADD LISTING MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">New Listing</div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Property Title</label>
+      <input type="text" class="form-input" placeholder="e.g. Cozy Studio in East Legon" id="f-title">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Address</label>
+      <input type="text" class="form-input" placeholder="Street, City, Region" id="f-address">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Monthly Rent (₵)</label>
+        <input type="number" class="form-input" placeholder="1200" id="f-price">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Property Type</label>
+        <select class="form-select" id="f-type">
+          <option value="">Select type</option>
+          <option>Studio</option>
+          <option>1 Bedroom</option>
+          <option>2 Bedrooms</option>
+          <option>3 Bedrooms</option>
+          <option>Shared Room</option>
+          <option>Entire House</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Bedrooms</label>
+        <input type="number" class="form-input" placeholder="1" id="f-beds" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bathrooms</label>
+        <input type="number" class="form-input" placeholder="1" id="f-baths" min="0">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" placeholder="Describe the property, amenities, neighbourhood..." id="f-desc"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Photos</label>
+      <div class="upload-zone">
+        <input type="file" multiple accept="image/*" id="f-photos" onchange="previewPhotos(this)">
+        <div class="upload-icon">📷</div>
+        <div class="upload-text"><strong>Click to upload</strong> or drag & drop</div>
+        <div class="upload-text" style="margin-top:4px;font-size:10px;">PNG, JPG, WEBP up to 10MB each</div>
+      </div>
+      <div id="photo-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select class="form-select" id="f-status">
+        <option value="available">Available</option>
+        <option value="occupied">Occupied</option>
+        <option value="pending">Pending</option>
+      </select>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveListing()">Publish Listing</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ Listing published successfully!</div>
+
+<script>
+// Sample listings data
+const listings = [
+  { id:1, title:"The Skyline Studio", address:"East Legon, Accra", price:"1,800", type:"Studio", beds:1, baths:1, status:"available", emoji:"🏙️", bg:"linear-gradient(135deg,#1a1a2e,#16213e)" },
+  { id:2, title:"Labone Heights 2BR", address:"Labone, Accra", price:"3,200", type:"2 Bedrooms", beds:2, baths:2, status:"occupied", emoji:"🏢", bg:"linear-gradient(135deg,#0d1b2a,#1b263b)" },
+  { id:3, title:"Airport Residential", address:"Airport Residential, Accra", price:"4,500", type:"3 Bedrooms", beds:3, baths:2, status:"occupied", emoji:"✈️", bg:"linear-gradient(135deg,#1a0533,#2d1b69)" },
+  { id:4, title:"Spintex Road Flat", address:"Spintex, Accra", price:"2,100", type:"1 Bedroom", beds:1, baths:1, status:"available", emoji:"🏠", bg:"linear-gradient(135deg,#0a1628,#1e3a5f)" },
+  { id:5, title:"Adenta Family Home", address:"Adenta, Accra", price:"5,000", type:"Entire House", beds:4, baths:3, status:"pending", emoji:"🏡", bg:"linear-gradient(135deg,#1a1a0a,#2d3b1e)" },
+  { id:6, title:"Osu Bungalow", address:"Osu, Accra", price:"2,800", type:"2 Bedrooms", beds:2, baths:1, status:"available", emoji:"🌴", bg:"linear-gradient(135deg,#0d2518,#1a4a2e)" },
+];
+
+let currentFilter = 'all';
+
+function renderListings() {
+  const grid = document.getElementById('listings-grid');
+  const filtered = currentFilter === 'all' ? listings : listings.filter(l => l.status === currentFilter);
+  grid.innerHTML = filtered.map((l, i) => `
+    <div class="listing-card" style="animation-delay:${i*0.05}s">
+      <div class="listing-img-wrap">
+        <div class="img-placeholder" style="background:${l.bg}">
+          <span style="font-size:48px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.5))">${l.emoji}</span>
+        </div>
+        <span class="listing-badge badge-${l.status}">${l.status}</span>
+      </div>
+      <div class="listing-body">
+        <div class="listing-title">${l.title}</div>
+        <div class="listing-address">📍 ${l.address}</div>
+        <div class="listing-meta">
+          <div class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            ${l.beds} bed${l.beds!==1?'s':''}
+          </div>
+          <div class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22V12a4 4 0 014-4h8a4 4 0 014 4v10M2 22h20M4 12H2M22 12h-2"/></svg>
+            ${l.baths} bath${l.baths!==1?'s':''}
+          </div>
+          <div class="meta-item" style="color:var(--muted)">
+            ${l.type}
+          </div>
+        </div>
+        <div class="listing-footer">
+          <div class="listing-price">₵${l.price}<span>/mo</span></div>
+          <div class="listing-actions">
+            <div class="icon-btn" title="Edit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+            <div class="icon-btn" title="Delete" onclick="deleteListing(${l.id})">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setFilter(el, filter) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = filter;
+  renderListings();
+}
+
+function switchTab(tab, el) {
+  ['listings','tenants','payments','receipts','analytics'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===tab ? '' : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  const titles = { listings:'My Listings', tenants:'Tenants', payments:'Payments', receipts:'Receipts', analytics:'Analytics' };
+  document.getElementById('page-title').textContent = titles[tab];
+}
+
+function openModal() {
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+function saveListing() {
+  const title = document.getElementById('f-title').value.trim();
+  const address = document.getElementById('f-address').value.trim();
+  const price = document.getElementById('f-price').value.trim();
+  const type = document.getElementById('f-type').value;
+  const beds = parseInt(document.getElementById('f-beds').value) || 1;
+  const baths = parseInt(document.getElementById('f-baths').value) || 1;
+  const status = document.getElementById('f-status').value;
+
+  if (!title || !address || !price || !type) {
+    alert('Please fill in all required fields.');
+    return;
+  }
+
+  const emojis = ['🏠','🏡','🏢','🏙️','🌴','🏗️'];
+  const bgs = [
+    'linear-gradient(135deg,#1a1a2e,#16213e)',
+    'linear-gradient(135deg,#0a1628,#1e3a5f)',
+    'linear-gradient(135deg,#1a0533,#2d1b69)',
+    'linear-gradient(135deg,#0d2518,#1a4a2e)',
+  ];
+
+  listings.unshift({
+    id: Date.now(),
+    title, address,
+    price: Number(price).toLocaleString(),
+    type, beds, baths, status,
+    emoji: emojis[Math.floor(Math.random()*emojis.length)],
+    bg: bgs[Math.floor(Math.random()*bgs.length)]
+  });
+
+  // reset form
+  ['f-title','f-address','f-price','f-desc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-beds').value = '';
+  document.getElementById('f-baths').value = '';
+  document.getElementById('photo-preview').innerHTML = '';
+
+  closeModal();
+  renderListings();
+  showToast('Listing published successfully!');
+}
+
+function deleteListing(id) {
+  const idx = listings.findIndex(l => l.id === id);
+  if (idx > -1) listings.splice(idx, 1);
+  renderListings();
+  showToast('Listing removed.');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = '✓ ' + msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function previewPhotos(input) {
+  const preview = document.getElementById('photo-preview');
+  preview.innerHTML = '';
+  [...input.files].forEach(file => {
+    const url = URL.createObjectURL(file);
+    const img = document.createElement('img');
+    img.src = url;
+    img.style.cssText = 'width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--border)';
+    preview.appendChild(img);
+  });
+}
+
+// Close modal on overlay click
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Init
+renderListings();
+</script>
+</body>
+</html>

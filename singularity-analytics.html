@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Singularity Rentals — Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06080d;--surface:#0f1318;--surface2:#161c24;--surface3:#1c242f;--border:#1e2730;--border2:#253040;--accent:#00e5ff;--accent2:#7c3aed;--accent3:#f59e0b;--text:#e8edf2;--muted:#4a5568;--muted2:#64748b;--success:#10b981;--danger:#ef4444;--warn:#f59e0b;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;overflow-x:hidden;min-height:100vh;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.35;}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:400;padding:0;}
+.sb-brand{padding:28px 24px 22px;border-bottom:1px solid var(--border);cursor:pointer;}
+.sb-brand:hover .sb-logo-mark{color:var(--text);}
+.sb-logo-mark{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.2em;color:var(--accent);line-height:1;transition:color 0.2s;}
+.sb-logo-sub{font-size:8px;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+.sb-section-label{font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);padding:20px 24px 8px;}
+.sb-nav{flex:1;overflow-y:auto;padding-bottom:16px;}
+.sb-link{display:flex;align-items:center;gap:12px;padding:11px 24px;font-size:12px;color:var(--muted);text-decoration:none;transition:all 0.2s;border-left:2px solid transparent;letter-spacing:0.05em;cursor:pointer;}
+.sb-link:hover{color:var(--text);background:var(--surface2);}
+.sb-link.active{color:var(--accent);background:rgba(0,229,255,0.06);border-left-color:var(--accent);}
+.sb-link-icon{font-size:15px;width:18px;text-align:center;}
+.sb-bottom{padding:16px 20px;border-top:1px solid var(--border);}
+.sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;transition:all 0.2s;}
+.sb-user:hover{border-color:var(--danger);}
+.sb-avatar{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--accent3),#ef4444);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;}
+.sb-user-info{flex:1;min-width:0;}
+.sb-user-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-user-role{font-size:9px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
+.main{margin-left:220px;min-height:100vh;padding:32px 36px 60px;position:relative;}
+.orb-a{position:fixed;top:-100px;right:-100px;width:560px;height:560px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,229,255,0.05),transparent 70%);pointer-events:none;}
+.orb-b{position:fixed;bottom:-120px;right:200px;width:420px;height:420px;border-radius:50%;background:radial-gradient(ellipse,rgba(124,58,237,0.05),transparent 70%);pointer-events:none;}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;animation:fadeUp 0.5s ease both;}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:0.04em;line-height:1;}
+.page-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.period-select{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px;}
+.period-btn{padding:6px 14px;border-radius:8px;border:none;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);background:none;cursor:pointer;transition:all 0.2s;}
+.period-btn.active{background:var(--surface2);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,0.3);}
+.export-btn{padding:9px 18px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px;}
+.export-btn:hover{border-color:var(--accent);color:var(--accent);}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 22px 18px;position:relative;overflow:hidden;transition:border-color 0.25s,transform 0.25s;animation:fadeUp 0.5s ease both;}
+.kpi-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+.kpi-card:nth-child(1){animation-delay:0.05s;}.kpi-card:nth-child(2){animation-delay:0.10s;}.kpi-card:nth-child(3){animation-delay:0.15s;}.kpi-card:nth-child(4){animation-delay:0.20s;}
+.kpi-glow{position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;filter:blur(40px);opacity:0.12;pointer-events:none;}
+.kpi-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:14px;}
+.kpi-label{font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.kpi-value{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:0.03em;line-height:1;margin-bottom:8px;}
+.kpi-change{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:6px;}
+.kpi-change.up{color:var(--success);background:rgba(16,185,129,0.1);}
+.kpi-change.down{color:var(--danger);background:rgba(239,68,68,0.1);}
+.kpi-change.neutral{color:var(--muted);background:var(--surface2);}
+.kpi-bar{position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--border);}
+.kpi-bar-fill{height:100%;border-radius:1px;transition:width 1.2s cubic-bezier(0.16,1,0.3,1);}
+.grid-main{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-bottom:16px;}
+.grid-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;animation:fadeUp 0.5s ease both;}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px 0;margin-bottom:16px;}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;}
+.card-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.card-badge{font-size:9px;letter-spacing:0.15em;text-transform:uppercase;padding:4px 10px;border-radius:6px;}
+.card-body{padding:0 22px 22px;}
+.revenue-card{animation-delay:0.25s;}
+.chart-wrap{padding:0 22px 22px;position:relative;}
+canvas#revenueChart{display:block;width:100%;}
+.occ-card{animation-delay:0.30s;}
+.occ-ring-wrap{display:flex;flex-direction:column;align-items:center;padding:8px 0 16px;}
+.ring-container{position:relative;width:160px;height:160px;margin-bottom:16px;}
+.ring-svg{width:160px;height:160px;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:14;}
+.ring-fill{fill:none;stroke-width:14;stroke-linecap:round;stroke-dasharray:408;stroke-dashoffset:408;transition:stroke-dashoffset 1.4s cubic-bezier(0.16,1,0.3,1) 0.3s;}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-pct{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:0.03em;line-height:1;}
+.ring-lbl{font-size:9px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;}
+.occ-legend{width:100%;padding:0 22px;}
+.occ-leg-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);}
+.occ-leg-row:last-child{border-bottom:none;}
+.occ-leg-left{display:flex;align-items:center;gap:8px;}
+.occ-leg-dot{width:8px;height:8px;border-radius:50%;}
+.occ-leg-label{font-size:11px;color:var(--muted);}
+.occ-leg-val{font-size:12px;font-weight:600;}
+.txn-card{animation-delay:0.32s;grid-column:span 2;}
+.txn-table{width:100%;border-collapse:collapse;}
+.txn-table th{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);padding:0 14px 12px;text-align:left;border-bottom:1px solid var(--border);}
+.txn-table td{padding:12px 14px;border-bottom:1px solid rgba(30,39,48,0.5);font-size:12px;vertical-align:middle;}
+.txn-table tr:last-child td{border-bottom:none;}
+.txn-table tr:hover td{background:var(--surface2);}
+.txn-avatar{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:12px;color:#fff;flex-shrink:0;}
+.txn-tenant-cell{display:flex;align-items:center;gap:10px;}
+.txn-name{font-weight:600;}
+.method-pill{font-size:9px;letter-spacing:0.1em;padding:3px 9px;border-radius:6px;border:1px solid var(--border);color:var(--muted);}
+.status-pill{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border-radius:6px;display:inline-block;}
+.status-pill.paid{color:var(--success);background:rgba(16,185,129,0.1);}
+.status-pill.pending{color:var(--warn);background:rgba(245,158,11,0.1);}
+.txn-amount{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.04em;}
+.txn-amount.income{color:var(--success);}
+.txn-amount.pending-amt{color:var(--warn);}
+.mini-bar-card{animation-delay:0.35s;}
+.mini-bars{display:flex;align-items:flex-end;gap:6px;height:80px;padding:0 22px 8px;}
+.mini-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.mini-bar{width:100%;border-radius:4px 4px 0 0;transition:height 1s cubic-bezier(0.16,1,0.3,1);min-height:2px;}
+.mini-bar-label{font-size:8px;color:var(--muted);letter-spacing:0.05em;}
+.feed-card{animation-delay:0.38s;}
+.feed-list{display:flex;flex-direction:column;}
+.feed-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(30,39,48,0.5);}
+.feed-item:last-child{border-bottom:none;}
+.feed-dot-wrap{display:flex;flex-direction:column;align-items:center;gap:0;}
+.feed-dot{width:28px;height:28px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.feed-line{width:1px;background:var(--border);flex:1;margin-top:4px;}
+.feed-body{flex:1;padding-bottom:4px;}
+.feed-event{font-size:12px;line-height:1.5;}
+.feed-event strong{color:var(--text);}
+.feed-time{font-size:10px;color:var(--muted);margin-top:3px;}
+.alert-row{display:flex;gap:12px;margin-bottom:16px;animation:fadeUp 0.5s 0.22s ease both;}
+.alert-card{flex:1;display:flex;align-items:center;gap:12px;padding:13px 18px;border-radius:12px;border:1px solid;}
+.alert-card.warn{background:rgba(245,158,11,0.07);border-color:rgba(245,158,11,0.2);}
+.alert-card.info{background:rgba(0,229,255,0.05);border-color:rgba(0,229,255,0.15);}
+.alert-icon{font-size:18px;}
+.alert-body{flex:1;}
+.alert-title{font-size:12px;font-weight:600;}
+.alert-desc{font-size:10px;color:var(--muted);margin-top:2px;}
+.alert-action{padding:6px 14px;border-radius:8px;border:none;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.alert-action.warn-btn{background:rgba(245,158,11,0.15);color:var(--warn);}
+.alert-action.warn-btn:hover{background:rgba(245,158,11,0.25);}
+.alert-action.info-btn{background:rgba(0,229,255,0.1);color:var(--accent);}
+.alert-action.info-btn:hover{background:rgba(0,229,255,0.18);}
+.forecast-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;margin-bottom:16px;overflow:hidden;animation:fadeUp 0.5s 0.42s ease both;}
+.forecast-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px 16px;border-bottom:1px solid var(--border);}
+.forecast-months{display:grid;grid-template-columns:repeat(6,1fr);}
+.forecast-month{padding:14px 16px;border-right:1px solid var(--border);position:relative;}
+.forecast-month:last-child{border-right:none;}
+.fm-label{font-size:9px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:6px;}
+.fm-amount{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.04em;margin-bottom:4px;}
+.fm-bar{height:3px;border-radius:2px;margin-bottom:4px;transition:width 1s ease;}
+.fm-status{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;}
+.fm-status.collected{color:var(--success);}
+.fm-status.forecast{color:var(--muted);font-style:italic;}
+.fm-badge{position:absolute;top:10px;right:10px;font-size:8px;padding:2px 6px;border-radius:4px;}
+.fm-badge.new{background:rgba(0,229,255,0.1);color:var(--accent);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+@media(max-width:900px){.sidebar{width:60px;}.sb-logo-sub,.sb-section-label,.sb-link span,.sb-user-info{display:none;}.sb-brand{padding:18px 12px;}.sb-link{padding:14px;justify-content:center;}.sb-link-icon{width:auto;}.sb-bottom{padding:10px;}.sb-user{padding:8px;justify-content:center;}.sb-avatar{margin:0;}.main{margin-left:60px;padding:20px 16px 40px;}.kpi-row{grid-template-columns:1fr 1fr;}.grid-main{grid-template-columns:1fr;}.grid-bottom{grid-template-columns:1fr;}.txn-card{grid-column:span 1;}.forecast-months{grid-template-columns:repeat(3,1fr);}}
+</style>
+</head>
+<body>
+<div class="orb-a"></div>
+<div class="orb-b"></div>
+<aside class="sidebar">
+  <div class="sb-brand" onclick="window.location.href='singularity-home.html'" title="Back to Home">
+    <div class="sb-logo-mark">Singularity</div>
+    <div class="sb-logo-sub">Rentals</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section-label">Landlord</div>
+    <div class="sb-link" onclick="window.location.href='singularity-rentals.html'"><span class="sb-link-icon">🏠</span><span>Dashboard</span></div>
+    <div class="sb-link active"><span class="sb-link-icon">📊</span><span>Analytics</span></div>
+    <div class="sb-link" onclick="window.location.href='singularity-rentals.html'"><span class="sb-link-icon">🏙️</span><span>Properties</span></div>
+    <div class="sb-link" onclick="window.location.href='singularity-tenant.html'"><span class="sb-link-icon">👥</span><span>Tenants</span></div>
+    <div class="sb-link" onclick="window.location.href='singularity-payment.html'"><span class="sb-link-icon">💳</span><span>Payments</span></div>
+    <div class="sb-link" onclick="window.location.href='singularity-receipt.html'"><span class="sb-link-icon">🧾</span><span>Receipts</span></div>
+    <div class="sb-section-label">Account</div>
+    <div class="sb-link"><span class="sb-link-icon">⚙️</span><span>Settings</span></div>
+    <div class="sb-link" onclick="window.location.href='singularity-home.html'"><span class="sb-link-icon">🚪</span><span>Log Out</span></div>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-user" onclick="window.location.href='singularity-home.html'" title="Log Out">
+      <div class="sb-avatar">K</div>
+      <div class="sb-user-info"><div class="sb-user-name">Kofi Mensah</div><div class="sb-user-role">Landlord</div></div>
+    </div>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-title">Analytics</div>
+      <div class="page-sub" id="date-sub">Loading…</div>
+    </div>
+    <div class="topbar-right">
+      <div class="period-select">
+        <button class="period-btn" onclick="setPeriod(this,'3m')">3M</button>
+        <button class="period-btn active" onclick="setPeriod(this,'6m')">6M</button>
+        <button class="period-btn" onclick="setPeriod(this,'1y')">1Y</button>
+        <button class="period-btn" onclick="setPeriod(this,'all')">ALL</button>
+      </div>
+      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+  </div>
+  <div class="alert-row">
+    <div class="alert-card warn"><div class="alert-icon">⚠️</div><div class="alert-body"><div class="alert-title">2 Tenants Overdue</div><div class="alert-desc">Unit A & Unit C — April rent not yet received</div></div><button class="alert-action warn-btn" onclick="showToast('Reminder sent to overdue tenants')">Send Reminder</button></div>
+    <div class="alert-card info"><div class="alert-icon">📄</div><div class="alert-body"><div class="alert-title">Tenancy Agreement Ready</div><div class="alert-desc">Unit D tenant agreement awaiting your signature</div></div><button class="alert-action info-btn" onclick="window.open('singularity-tenancy-agreement.pdf')">Review Now</button></div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-glow" style="background:var(--success)"></div><div class="kpi-icon" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2)">💰</div><div class="kpi-label">Total Revenue</div><div class="kpi-value" style="color:var(--success)" id="kpi-rev">GHS 0</div><div class="kpi-change up">↑ 12% vs last period</div><div class="kpi-bar"><div class="kpi-bar-fill" style="background:var(--success);width:0%" id="bar-rev"></div></div></div>
+    <div class="kpi-card"><div class="kpi-glow" style="background:var(--accent)"></div><div class="kpi-icon" style="background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.15)">🏙️</div><div class="kpi-label">Occupancy Rate</div><div class="kpi-value" style="color:var(--accent)" id="kpi-occ">0%</div><div class="kpi-change up">↑ 8% vs last period</div><div class="kpi-bar"><div class="kpi-bar-fill" style="background:var(--accent);width:0%" id="bar-occ"></div></div></div>
+    <div class="kpi-card"><div class="kpi-glow" style="background:var(--accent2)"></div><div class="kpi-icon" style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2)">🏠</div><div class="kpi-label">Active Properties</div><div class="kpi-value" style="color:var(--accent2)" id="kpi-prop">0</div><div class="kpi-change neutral">Same as last period</div><div class="kpi-bar"><div class="kpi-bar-fill" style="background:var(--accent2);width:0%" id="bar-prop"></div></div></div>
+    <div class="kpi-card"><div class="kpi-glow" style="background:var(--accent3)"></div><div class="kpi-icon" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2)">📈</div><div class="kpi-label">Avg Rent / Unit</div><div class="kpi-value" style="color:var(--accent3)" id="kpi-avg">GHS 0</div><div class="kpi-change up">↑ 5% vs last period</div><div class="kpi-bar"><div class="kpi-bar-fill" style="background:var(--accent3);width:0%" id="bar-avg"></div></div></div>
+  </div>
+  <div class="grid-main">
+    <div class="card revenue-card">
+      <div class="card-head"><div><div class="card-title">Revenue Overview</div><div class="card-sub">Monthly rent collected vs expected — GHS</div></div><div style="display:flex;gap:12px;align-items:center"><div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:var(--success)"></div>Collected</div><div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:var(--border2)"></div>Expected</div></div></div>
+      <div class="chart-wrap" style="height:220px;padding-top:8px;"><canvas id="revenueChart" height="200"></canvas></div>
+    </div>
+    <div class="card occ-card">
+      <div class="card-head"><div><div class="card-title">Occupancy</div><div class="card-sub">Current status</div></div><div class="card-badge" style="background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.2)">Live</div></div>
+      <div class="occ-ring-wrap">
+        <div class="ring-container">
+          <svg class="ring-svg" viewBox="0 0 160 160"><circle class="ring-bg" cx="80" cy="80" r="65"/><circle class="ring-fill" cx="80" cy="80" r="65" id="occ-ring" stroke="url(#ringGrad)"/><defs><linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs></svg>
+          <div class="ring-center"><div class="ring-pct" style="color:var(--accent)" id="ring-pct">0%</div><div class="ring-lbl">Occupied</div></div>
+        </div>
+      </div>
+      <div class="occ-legend">
+        <div class="occ-leg-row"><div class="occ-leg-left"><div class="occ-leg-dot" style="background:var(--success)"></div><div class="occ-leg-label">Occupied</div></div><div class="occ-leg-val" id="leg-occ">4 units</div></div>
+        <div class="occ-leg-row"><div class="occ-leg-left"><div class="occ-leg-dot" style="background:var(--warn)"></div><div class="occ-leg-label">Vacant</div></div><div class="occ-leg-val" id="leg-vac">1 unit</div></div>
+        <div class="occ-leg-row"><div class="occ-leg-left"><div class="occ-leg-dot" style="background:var(--accent2)"></div><div class="occ-leg-label">Pending</div></div><div class="occ-leg-val" id="leg-pend">1 unit</div></div>
+        <div class="occ-leg-row"><div class="occ-leg-left"><div class="occ-leg-dot" style="background:var(--border2)"></div><div class="occ-leg-label">Total</div></div><div class="occ-leg-val" id="leg-total">6 units</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="forecast-card">
+    <div class="forecast-head"><div><div class="card-title">Revenue Forecast — 2025</div><div class="card-sub">Historical collection & projected income based on current occupancy</div></div><div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);letter-spacing:0.04em" id="forecast-total">GHS 64,800 projected</div></div>
+    <div class="forecast-months" id="forecast-months"></div>
+  </div>
+  <div class="grid-bottom">
+    <div class="card txn-card" style="animation-delay:0.32s">
+      <div class="card-head"><div><div class="card-title">Recent Transactions</div><div class="card-sub">All rent payments · April 2025</div></div><a href="singularity-receipt.html" style="font-size:10px;color:var(--accent);text-decoration:none;letter-spacing:0.1em;">View All →</a></div>
+      <div class="card-body" style="padding:0 0 4px"><table class="txn-table" id="txn-table"><thead><tr><th>Tenant</th><th>Property / Unit</th><th>Method</th><th>Date</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead><tbody id="txn-body"></tbody></table></div>
+    </div>
+    <div class="card mini-bar-card" style="animation-delay:0.35s">
+      <div class="card-head"><div><div class="card-title">Rent by Unit</div><div class="card-sub">Monthly GHS</div></div></div>
+      <div class="mini-bars" id="mini-bars"></div>
+      <div class="card-body" style="padding-top:0"><div id="unit-detail-list" style="display:flex;flex-direction:column;gap:6px;"></div></div>
+    </div>
+    <div class="card feed-card" style="animation-delay:0.38s">
+      <div class="card-head"><div><div class="card-title">Activity Feed</div><div class="card-sub">Latest platform events</div></div><div class="card-badge" style="background:rgba(0,229,255,0.08);color:var(--accent);border:1px solid rgba(0,229,255,0.15)">Live</div></div>
+      <div class="card-body" style="padding-top:0"><div class="feed-list" id="feed-list"></div></div>
+    </div>
+  </div>
+</main>
+<div id="toast" style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);padding:11px 22px;border-radius:11px;background:var(--surface);border:1px solid var(--border);font-size:12px;color:var(--text);z-index:2000;display:flex;align-items:center;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,0.5);transition:transform 0.35s cubic-bezier(0.175,0.885,0.32,1.275);white-space:nowrap;">✓ <span id="toast-msg"></span></div>
+<script>
+const PROPERTIES=[{name:'2-Bed Flat',addr:'East Legon',rent:1800,status:'occ',emoji:'🏙️',color:'#10b981'},{name:'Studio Unit',addr:'Airport Res.',rent:1200,status:'occ',emoji:'🏢',color:'#00e5ff'},{name:'3-Bed Apt',addr:'Cantonments',rent:2400,status:'occ',emoji:'🏘️',color:'#7c3aed'},{name:'1-Bed Room',addr:'Labone',rent:900,status:'vac',emoji:'🏠',color:'#f59e0b'},{name:'2-Bed Apt',addr:'Osu',rent:1600,status:'occ',emoji:'🏗️',color:'#10b981'},{name:'Studio Loft',addr:'Ridge',rent:1400,status:'occ',emoji:'🏛️',color:'#ef4444'}];
+const TRANSACTIONS=[{name:'Ama Owusu',unit:'Unit B · East Legon',avatar:'A',color:'#7c3aed',method:'📱 MoMo',date:'01 Apr 2025',status:'paid',amount:1800},{name:'Kwesi Boateng',unit:'Studio · Airport',avatar:'K',color:'#00e5ff',method:'💳 Card',date:'01 Apr 2025',status:'paid',amount:1200},{name:'Abena Sarpong',unit:'3-Bed · Cantonments',avatar:'A',color:'#f59e0b',method:'🏦 Bank',date:'02 Apr 2025',status:'paid',amount:2400},{name:'Yaw Asante',unit:'2-Bed Apt · Osu',avatar:'Y',color:'#10b981',method:'📱 MoMo',date:'01 Apr 2025',status:'paid',amount:1600},{name:'Efua Mensah',unit:'Studio Loft · Ridge',avatar:'E',color:'#ef4444',method:'💳 Card',date:'03 Apr 2025',status:'paid',amount:1400},{name:'Kofi Atta',unit:'1-Bed · Labone',avatar:'K',color:'#64748b',method:'—',date:'—',status:'pending',amount:900}];
+const MONTHS_6=['Nov','Dec','Jan','Feb','Mar','Apr'];
+const COLLECTED=[7800,8200,8400,8400,8400,7400];
+const EXPECTED=[8400,8400,8400,8400,8400,8400];
+const FEED_EVENTS=[{icon:'💸',bg:'rgba(16,185,129,0.1)',event:'<strong>Ama Owusu</strong> paid April rent — GHS 1,800',time:'2 hours ago'},{icon:'📄',bg:'rgba(124,58,237,0.1)',event:'Tenancy agreement sent to <strong>Unit D applicant</strong>',time:'5 hours ago'},{icon:'✅',bg:'rgba(0,229,255,0.1)',event:'<strong>Efua Mensah</strong> paid April rent — GHS 1,400',time:'Yesterday'},{icon:'🔑',bg:'rgba(245,158,11,0.1)',event:'New rental application for <strong>1-Bed Labone</strong>',time:'2 days ago'},{icon:'🧾',bg:'rgba(16,185,129,0.1)',event:'Receipt #SING-TXN-47291 auto-generated for <strong>Unit B</strong>',time:'3 days ago'},{icon:'⚠️',bg:'rgba(239,68,68,0.1)',event:'Rent overdue reminder sent to <strong>Kofi Atta</strong>',time:'4 days ago'}];
+const FORECAST_DATA=[{month:'Jan',amount:8400,pct:100,status:'collected'},{month:'Feb',amount:8400,pct:100,status:'collected'},{month:'Mar',amount:8400,pct:100,status:'collected'},{month:'Apr',amount:7400,pct:88,status:'collected',badge:'This month'},{month:'May',amount:8400,pct:100,status:'forecast'},{month:'Jun',amount:8400,pct:100,status:'forecast'}];
+window.addEventListener('DOMContentLoaded',()=>{setDateSub();animateKPIs();drawRevenueChart();animateOccRing();buildForecast();buildTransactions();buildMiniBars();buildFeed();});
+function setDateSub(){const now=new Date();document.getElementById('date-sub').textContent='As of '+now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+function animateKPIs(){countUp('kpi-rev',0,32400,1200,v=>'GHS '+Math.floor(v).toLocaleString('en-GH'));countUp('kpi-occ',0,83,1000,v=>Math.floor(v)+'%');countUp('kpi-prop',0,6,800,v=>Math.floor(v).toString());countUp('kpi-avg',0,1567,1100,v=>'GHS '+Math.floor(v).toLocaleString('en-GH'));setTimeout(()=>{document.getElementById('bar-rev').style.width='78%';document.getElementById('bar-occ').style.width='83%';document.getElementById('bar-prop').style.width='60%';document.getElementById('bar-avg').style.width='65%';},200);}
+function countUp(id,from,to,dur,fmt){const el=document.getElementById(id);const start=performance.now();function step(now){const p=Math.min((now-start)/dur,1);const ease=1-Math.pow(1-p,3);el.textContent=fmt(from+(to-from)*ease);if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
+function drawRevenueChart(){const canvas=document.getElementById('revenueChart');const wrap=canvas.parentElement;const W=wrap.clientWidth;const H=190;canvas.width=W;canvas.height=H;const ctx=canvas.getContext('2d');const PAD={top:10,right:16,bottom:36,left:52};const cW=W-PAD.left-PAD.right;const cH=H-PAD.top-PAD.bottom;const maxVal=9600;const n=MONTHS_6.length;const barGap=6;const groupW=cW/n;const barW=(groupW-barGap*3)/2;function draw(p){ctx.clearRect(0,0,W,H);[0,2000,4000,6000,8000].forEach(v=>{const y=PAD.top+cH-(v/maxVal)*cH;ctx.strokeStyle='#1e2730';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(PAD.left,y);ctx.lineTo(W-PAD.right,y);ctx.stroke();ctx.fillStyle='#4a5568';ctx.font='9px DM Mono, monospace';ctx.textAlign='right';ctx.fillText(v===0?'0':(v/1000)+'k',PAD.left-6,y+3);});MONTHS_6.forEach((m,i)=>{const cx=PAD.left+groupW*i+groupW/2;const exp=EXPECTED[i];const col=COLLECTED[i];const expH=(exp/maxVal)*cH*p;const colH=(col/maxVal)*cH*p;const x1=cx-barW-barGap/2;const x2=cx+barGap/2;ctx.fillStyle='#253040';ctx.beginPath();roundRect(ctx,x1,PAD.top+cH-expH,barW,expH,3);ctx.fill();const grad=ctx.createLinearGradient(0,PAD.top,0,PAD.top+cH);grad.addColorStop(0,'#10b981');grad.addColorStop(1,'#059669');ctx.fillStyle=grad;ctx.beginPath();roundRect(ctx,x2,PAD.top+cH-colH,barW,colH,3);ctx.fill();ctx.fillStyle='#4a5568';ctx.font='9px DM Mono, monospace';ctx.textAlign='center';ctx.fillText(m,cx,PAD.top+cH+18);if(p===1&&col>0){ctx.fillStyle='#10b981';ctx.font='bold 8px DM Mono, monospace';ctx.fillText((col/1000).toFixed(1)+'k',x2+barW/2,PAD.top+cH-colH-5);}});}const start=performance.now();function frame(now){const p=Math.min((now-start)/1000,1);const ease=1-Math.pow(1-p,3);draw(ease);if(p<1)requestAnimationFrame(frame);else draw(1);}requestAnimationFrame(frame);}
+function roundRect(ctx,x,y,w,h,r){if(h<r*2)r=h/2;ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h);ctx.lineTo(x,y+h);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+function animateOccRing(){const pct=83;const circumference=408;const ring=document.getElementById('occ-ring');const label=document.getElementById('ring-pct');const start=performance.now();function step(now){const p=Math.min((now-start)/1200,1);const ease=1-Math.pow(1-p,3);const cur=pct*ease;ring.style.strokeDashoffset=circumference-(cur/100)*circumference;label.textContent=Math.round(cur)+'%';if(p<1)requestAnimationFrame(step);}setTimeout(()=>requestAnimationFrame(step),300);}
+function buildForecast(){const container=document.getElementById('forecast-months');container.innerHTML=FORECAST_DATA.map(f=>`<div class="forecast-month">${f.badge?`<div class="fm-badge new">${f.badge}</div>`:''}<div class="fm-label">${f.month} 2025</div><div class="fm-amount" style="color:${f.status==='collected'?'var(--success)':'var(--muted2)'}">GHS ${(f.amount/1000).toFixed(1)}k</div><div class="fm-bar" style="background:${f.status==='collected'?'var(--success)':'var(--border2)'};width:0%" data-pct="${f.pct}"></div><div class="fm-status ${f.status}">${f.status==='collected'?'Collected':'Projected'}</div></div>`).join('');setTimeout(()=>{container.querySelectorAll('.fm-bar').forEach(bar=>{bar.style.width=bar.dataset.pct+'%';});},400);}
+function buildTransactions(){const tbody=document.getElementById('txn-body');tbody.innerHTML=TRANSACTIONS.map(t=>`<tr><td><div class="txn-tenant-cell"><div class="txn-avatar" style="background:${t.color}">${t.avatar}</div><div><div class="txn-name">${t.name}</div></div></div></td><td style="color:var(--muted);font-size:11px">${t.unit}</td><td><span class="method-pill">${t.method}</span></td><td style="color:var(--muted);font-size:11px">${t.date}</td><td><span class="status-pill ${t.status}">${t.status}</span></td><td style="text-align:right"><span class="txn-amount ${t.status==='paid'?'income':'pending-amt'}">GHS ${t.amount.toLocaleString('en-GH')}</span></td></tr>`).join('');}
+function buildMiniBars(){const container=document.getElementById('mini-bars');const maxRent=Math.max(...PROPERTIES.map(p=>p.rent));const units=['A','B','C','D','E','F'];container.innerHTML=PROPERTIES.map((p,i)=>`<div class="mini-bar-wrap"><div class="mini-bar" id="mb-${i}" style="background:${p.color};height:0px;max-height:72px" data-h="${Math.round((p.rent/maxRent)*72)}"></div><div class="mini-bar-label">Unit ${units[i]}</div></div>`).join('');setTimeout(()=>{document.querySelectorAll('.mini-bar[data-h]').forEach(bar=>{bar.style.height=bar.dataset.h+'px';});},500);const dl=document.getElementById('unit-detail-list');dl.innerHTML=PROPERTIES.map((p,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(30,39,48,0.4)"><div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:${p.color}"></div><div style="font-size:11px;color:var(--muted)">Unit ${units[i]} · ${p.addr}</div></div><div style="display:flex;align-items:center;gap:8px"><div style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:${p.status==='occ'?'var(--success)':'var(--warn)'}">GHS ${p.rent.toLocaleString('en-GH')}</div><div style="font-size:9px;padding:2px 7px;border-radius:5px;${p.status==='occ'?'color:var(--success);background:rgba(16,185,129,0.1)':'color:var(--warn);background:rgba(245,158,11,0.1)'}">${p.status==='occ'?'Occ':'Vac'}</div></div></div>`).join('');}
+function buildFeed(){document.getElementById('feed-list').innerHTML=FEED_EVENTS.map((e,i)=>`<div class="feed-item"><div class="feed-dot-wrap"><div class="feed-dot" style="background:${e.bg}">${e.icon}</div>${i<FEED_EVENTS.length-1?'<div class="feed-line"></div>':''}</div><div class="feed-body"><div class="feed-event">${e.event}</div><div class="feed-time">${e.time}</div></div></div>`).join('');}
+function setPeriod(btn,period){document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const multipliers={'3m':0.5,'6m':1,'1y':2,'all':2.8};const m=multipliers[period]||1;countUp('kpi-rev',0,Math.round(32400*m),900,v=>'GHS '+Math.floor(v).toLocaleString('en-GH'));document.getElementById('forecast-total').textContent='GHS '+Math.round(64800*m).toLocaleString('en-GH')+' projected';showToast('Period updated: '+period.toUpperCase());}
+function exportCSV(){const rows=[['Tenant','Unit','Method','Date','Status','Amount (GHS)'],...TRANSACTIONS.map(t=>[t.name,t.unit,t.method.replace(/[^\w\s]/g,'').trim(),t.date,t.status,t.amount])];const csv=rows.map(r=>r.join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='singularity-transactions-april-2025.csv';a.click();showToast('CSV exported successfully');}
+function showToast(msg){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;t.style.transform='translateX(-50%) translateY(0)';clearTimeout(t._timer);t._timer=setTimeout(()=>{t.style.transform='translateX(-50%) translateY(80px)';},2800);}
+</script>
+</body>
+</html>
